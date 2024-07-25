@@ -10,4 +10,5 @@ import lombok.*;
 @Setter
 public class PartialUpdateRoomOutput {
     private String id;
+
 }
