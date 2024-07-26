@@ -3,6 +3,7 @@ package com.tinqinacademy.hotel.rest.exception;
 import com.tinqinacademy.hotel.core.exception.ErrorHandler;
 import com.tinqinacademy.hotel.core.exception.ErrorWrapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.BookRoomException;
+import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BookRoomException.class)
     public ResponseEntity<?> handleBookRoomException(BookRoomException exception) {
+        log.error(exception.toString());
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CreateRoomException.class)
+    public ResponseEntity<?> handleCreateRoomException(CreateRoomException exception) {
         log.error(exception.toString());
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
