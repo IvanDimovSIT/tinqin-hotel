@@ -130,18 +130,12 @@ public class SystemServiceImpl implements SystemService {
                 if (input.getIdCardIssueDate() != null && !input.getIdCardIssueDate().equals(guest.getIdCardIssueDate())) {
                     continue;
                 }
-                VisitorOutput visitorOutput = VisitorOutput.builder()
-                        .roomId(booking.getRoom().getId().toString())
-                        .startDate(booking.getStartDate())
-                        .endDate(booking.getEndDate())
-                        .firstName(guest.getFirstName())
-                        .lastName(guest.getLastName())
-                        .phoneNumber(booking.getUser().getPhoneNumber())
-                        .idCardNumber(guest.getIdCardNo())
-                        .idCardValidity(guest.getIdCardValidity())
-                        .idCardIssueAuthority(guest.getIdCardIssueAuthority())
-                        .idCardIssueDate(guest.getIdCardIssueDate())
-                        .build();
+                VisitorOutput visitorOutput = conversionService.convert(input, VisitorOutput.class);
+                visitorOutput.setPhoneNumber(booking.getUser().getPhoneNumber());
+                visitorOutput.setRoomId(booking.getRoom().getId().toString());
+                visitorOutput.setStartDate(booking.getStartDate());
+                visitorOutput.setEndDate(booking.getEndDate());
+
                 visitorOutputs.add(visitorOutput);
             }
         }
@@ -170,13 +164,8 @@ public class SystemServiceImpl implements SystemService {
         List<Bed> bedsToAdd = IntStream.range(0, input.getBedCount()).mapToObj(i -> bed.get())
                 .collect(Collectors.toList());
 
-        Room room = Room.builder()
-                .beds(bedsToAdd)
-                .price(input.getPrice())
-                .floor(input.getFloor())
-                .roomNo(input.getRoomNumber())
-                .bathroomType(BathroomType.getCode(input.getBathroomType().toString()))
-                .build();
+        Room room = conversionService.convert(input, Room.class);
+        room.setBeds(bedsToAdd);
 
         room = roomRepository.save(room);
 
@@ -193,7 +182,6 @@ public class SystemServiceImpl implements SystemService {
 
         Room room = roomRepository.findById(UUID.fromString(input.getRoomId())).orElseThrow(
                 () -> new NotFoundException("Room with id:" + input.getRoomId() + " not found"));
-
 
         room.setRoomNo(input.getRoomNumber());
         room.setPrice(input.getPrice());

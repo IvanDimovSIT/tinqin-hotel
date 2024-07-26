@@ -1,8 +1,6 @@
 package com.tinqinacademy.hotel.core.services;
 
 
-import com.tinqinacademy.hotel.api.model.enums.BathroomType;
-import com.tinqinacademy.hotel.api.model.enums.BedSize;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsInput;
@@ -104,17 +102,12 @@ public class HotelServiceImpl implements HotelService {
         User user = conversionService.convert(input, User.class);
         user = userRepository.save(user);
 
+        Booking booking = conversionService.convert(input, Booking.class);
+        booking.setUser(user);
+        booking.setRoom(room);
+        booking.setTotalPrice(room.getPrice().multiply(BigDecimal.valueOf(input.getEndDate().toEpochDay() -
+                input.getStartDate().toEpochDay())));
 
-        Booking booking = Booking.builder()
-                .user(user)
-                .room(room)
-                .guests(new ArrayList<>())
-                .startDate(input.getStartDate())
-                .endDate(input.getEndDate())
-                .totalPrice(
-                        room.getPrice().multiply(BigDecimal.valueOf(input.getEndDate().toEpochDay() -
-                                input.getStartDate().toEpochDay())))
-                .build();
         bookingRepository.save(booking);
 
         BookRoomOutput bookRoomOutput = BookRoomOutput.builder()
