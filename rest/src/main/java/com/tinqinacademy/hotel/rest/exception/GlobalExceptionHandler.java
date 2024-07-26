@@ -5,6 +5,7 @@ import com.tinqinacademy.hotel.core.exception.ErrorWrapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.BookRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.exception.exceptions.RegisterVisitorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CreateRoomException.class)
     public ResponseEntity<?> handleCreateRoomException(CreateRoomException exception) {
+        log.error(exception.toString());
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RegisterVisitorException.class)
+    public ResponseEntity<?> handleRegisterVisitorException(RegisterVisitorException exception) {
         log.error(exception.toString());
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
