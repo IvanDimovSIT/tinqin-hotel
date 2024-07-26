@@ -23,6 +23,7 @@ import com.tinqinacademy.hotel.api.services.SystemService;
 import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.exception.exceptions.RegisterVisitorException;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
@@ -64,6 +65,13 @@ public class SystemServiceImpl implements SystemService {
 
         List<Guest> guests = input.getVisitorInputs().stream()
                 .map(visitor -> {
+                    if (!(visitor.getIdCardNumber() != null && visitor.getIdCardIssueDate() != null &&
+                            visitor.getIdCardIssueAuthority() != null && visitor.getIdCardValidity() != null) &&
+                            !(visitor.getIdCardNumber() == null && visitor.getIdCardIssueDate() == null &&
+                                    visitor.getIdCardIssueAuthority() == null && visitor.getIdCardValidity() == null)) {
+                        throw new RegisterVisitorException("Error registering visitor: invalid id information");
+                    }
+
                     Guest guest = conversionService.convert(visitor, Guest.class);
                     guest = guestRepository.save(guest);
                     Booking booking = bookingRepository.findByRoomIdAndStartDateAndEndDate(
@@ -97,6 +105,7 @@ public class SystemServiceImpl implements SystemService {
     @Override
     public GetVisitorsOutput getVisitors(GetVisitorsInput input) {
         log.info("Start getVisitors input:{}", input);
+
         List<Booking> bookings = bookingRepository.findBookingsByCriteria(
                 input.getStartDate(),
                 input.getEndDate(),
@@ -157,7 +166,7 @@ public class SystemServiceImpl implements SystemService {
         if (bed.isEmpty()) {
             throw new NotFoundException("Beds with type " + input.getBedSize().toString() + " not found");
         }
-        if(roomRepository.findByRoomNo(input.getRoomNumber()).isPresent()){
+        if (roomRepository.findByRoomNo(input.getRoomNumber()).isPresent()) {
             throw new CreateRoomException("Room with number " + input.getRoomNumber() + " already exists");
         }
 
