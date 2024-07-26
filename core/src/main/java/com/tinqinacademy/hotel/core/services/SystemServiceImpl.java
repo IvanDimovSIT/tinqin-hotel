@@ -20,6 +20,7 @@ import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVis
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
 import com.tinqinacademy.hotel.api.services.SystemService;
+import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -161,6 +162,9 @@ public class SystemServiceImpl implements SystemService {
         Optional<Bed> bed = bedRepository.findByBedSize(BedSize.getCode(input.getBedSize().toString()));
         if (bed.isEmpty()) {
             throw new NotFoundException("Beds with type " + input.getBedSize().toString() + " not found");
+        }
+        if(roomRepository.findByRoomNo(input.getRoomNumber()).isPresent()){
+            throw new CreateRoomException("Room with number " + input.getRoomNumber() + " already exists");
         }
 
         List<Bed> bedsToAdd = IntStream.range(0, input.getBedCount()).mapToObj(i -> bed.get())
