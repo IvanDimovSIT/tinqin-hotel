@@ -17,6 +17,7 @@ public class GuestToVisitorOutputConverter extends BaseConverter<Guest, VisitorO
                 .idCardIssueDate(source.getIdCardIssueDate())
                 .idCardIssueAuthority(source.getIdCardIssueAuthority())
                 .idCardValidity(source.getIdCardValidity())
+                .phoneNumber(source.getPhoneNumber())
                 .build();
 
         return visitorOutput;

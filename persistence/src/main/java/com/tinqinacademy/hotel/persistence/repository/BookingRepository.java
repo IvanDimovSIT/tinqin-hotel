@@ -23,7 +23,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
             "(b.startDate <= :startDate AND b.endDate >= :endDate)) " +
             "AND (:firstName IS NULL OR g.firstName LIKE :firstName) " +
             "AND (:lastName IS NULL OR g.lastName LIKE :lastName) " +
-            "AND (:phoneNumber IS NULL OR u.phoneNumber = :phoneNumber) " +
+            "AND (:phoneNumber IS NULL OR g.phoneNumber = :phoneNumber) " +
             "AND (:idCardNumber IS NULL OR g.idCardNo = :idCardNumber) " +
             "AND (:idCardValidity IS NULL OR g.idCardValidity = :idCardValidity) " +
             "AND (:idCardIssueAuthority IS NULL OR g.idCardIssueAuthority LIKE :idCardIssueAuthority) " +

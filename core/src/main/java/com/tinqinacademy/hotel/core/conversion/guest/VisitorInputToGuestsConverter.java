@@ -28,6 +28,7 @@ public class VisitorInputToGuestsConverter extends BaseConverter<VisitorInput, G
                 .idCardIssueDate(source.getIdCardIssueDate())
                 .idCardValidity(source.getIdCardValidity())
                 .idCardIssueAuthority(source.getIdCardIssueAuthority())
+                .phoneNumber(source.getPhoneNumber())
                 .build();
 
 
