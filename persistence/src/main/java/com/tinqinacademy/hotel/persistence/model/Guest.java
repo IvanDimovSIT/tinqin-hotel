@@ -1,6 +1,7 @@
 package com.tinqinacademy.hotel.persistence.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -43,6 +44,9 @@ public class Guest {
 
     @Column(name = "id_card_validity", nullable = true)
     private LocalDate idCardValidity;
+
+    @Column(name = "phone_number", nullable = true, length = 16)
+    private String phoneNumber;
 
     @CreationTimestamp
     @Column(name = "created")

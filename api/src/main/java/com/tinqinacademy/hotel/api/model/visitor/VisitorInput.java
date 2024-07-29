@@ -28,16 +28,11 @@ public class VisitorInput {
     @NotEmpty
     @Pattern(regexp = "[0-9]{10}", message = "10 Digits")
     private String phoneNumber;
-    @NotEmpty
     @Pattern(regexp = "[0-9]{8,16}", message = "8-16 Digits")
     private String idCardNumber;
-    @NotNull
     private LocalDate idCardValidity;
-    @NotEmpty
     private String idCardIssueAuthority;
-    @NotNull
     private LocalDate idCardIssueDate;
-    @NotNull
     private LocalDate dateOfBirth;
     @NotEmpty
     private String roomId;
