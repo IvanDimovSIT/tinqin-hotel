@@ -15,6 +15,8 @@ import com.tinqinacademy.hotel.api.services.HotelService;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.User;
+import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
+import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
 import com.tinqinacademy.hotel.persistence.repository.UserRepository;
@@ -67,11 +69,11 @@ public class HotelServiceImpl implements HotelService {
     public CheckAvailableRoomsOutput checkAvailableRooms(final CheckAvailableRoomsInput input) {
         log.info("Start checkAvailableRooms input:{}", input);
 
-        var bathroomTypeCriteria = input.getBathroomType() == null ? null :
+        BathroomType bathroomTypeCriteria = input.getBathroomType() == null ? null :
                 com.tinqinacademy.hotel.persistence.model.enums.BathroomType
                         .getCode(input.getBathroomType().toString());
 
-        var bedSizeCriteria = input.getBedSize() == null ? null :
+        BedSize bedSizeCriteria = input.getBedSize() == null ? null :
                 com.tinqinacademy.hotel.persistence.model.enums.BedSize
                         .getCode(input.getBedSize().toString());
 
