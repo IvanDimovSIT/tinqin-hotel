@@ -139,7 +139,7 @@ public class SystemServiceImpl implements SystemService {
                 if (input.getIdCardIssueDate() != null && !input.getIdCardIssueDate().equals(guest.getIdCardIssueDate())) {
                     continue;
                 }
-                VisitorOutput visitorOutput = conversionService.convert(input, VisitorOutput.class);
+                VisitorOutput visitorOutput = conversionService.convert(guest, VisitorOutput.class);
                 visitorOutput.setPhoneNumber(booking.getUser().getPhoneNumber());
                 visitorOutput.setRoomId(booking.getRoom().getId().toString());
                 visitorOutput.setStartDate(booking.getStartDate());
