@@ -3,17 +3,22 @@ package com.tinqinacademy.hotel.rest.controllers;
 
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
+import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomService;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOutput;
+import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomService;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsInput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOutput;
+import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsService;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
+import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomService;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOutput;
+import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorService;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
-import com.tinqinacademy.hotel.api.services.SystemService;
+import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomService;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -21,7 +26,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +35,12 @@ import java.time.LocalDate;
 @RequestMapping
 @RequiredArgsConstructor
 public class SystemController {
-    private final SystemService systemService;
+    private final RegisterVisitorService registerVisitorService;
+    private final GetVisitorsService getVisitorsService;
+    private final AddRoomService addRoomService;
+    private final UpdateRoomService updateRoomService;
+    private final PartialUpdateRoomService partialUpdateRoomService;
+    private final DeleteRoomService deleteRoomService;
 
     @Operation(summary = "Registers a visitor as room renter", description = "Registers a visitor as room renter")
     @ApiResponses(value = {
@@ -42,7 +51,7 @@ public class SystemController {
     @PostMapping(RestApiRoutes.SYSTEM_REGISTER_VISITOR)
     public ResponseEntity<?> registerVisitor(@Valid @RequestBody RegisterVisitorInput input) {
 
-        RegisterVisitorOutput output = systemService.registerVisitor(input);
+        RegisterVisitorOutput output = registerVisitorService.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -83,7 +92,7 @@ public class SystemController {
                 .roomNumber(roomNumber)
                 .build();
 
-        GetVisitorsOutput output = systemService.getVisitors(input);
+        GetVisitorsOutput output = getVisitorsService.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -100,7 +109,7 @@ public class SystemController {
     })
     @PostMapping(RestApiRoutes.SYSTEM_ADD_ROOM)
     public ResponseEntity<?> addRoom(@Valid @RequestBody AddRoomInput input) {
-        AddRoomOutput output = systemService.addRoom(input);
+        AddRoomOutput output = addRoomService.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -121,7 +130,7 @@ public class SystemController {
                 .roomId(roomId)
                 .build();
 
-        UpdateRoomOutput output = systemService.updateRoom(updateRoomInput);
+        UpdateRoomOutput output = updateRoomService.process(updateRoomInput);
 
         return new ResponseEntity<>(
                 output,
@@ -141,7 +150,7 @@ public class SystemController {
                 .roomId(roomId)
                 .build();
 
-        PartialUpdateRoomOutput output = systemService.partialUpdateRoom(partialUpdateRoomInput);
+        PartialUpdateRoomOutput output = partialUpdateRoomService.process(partialUpdateRoomInput);
 
         return new ResponseEntity<>(
                 output,
@@ -162,7 +171,7 @@ public class SystemController {
                 .id(roomId)
                 .build();
 
-        DeleteRoomOutput output = systemService.deleteRoom(input);
+        DeleteRoomOutput output = deleteRoomService.process(input);
 
         return new ResponseEntity<>(
                 output,
