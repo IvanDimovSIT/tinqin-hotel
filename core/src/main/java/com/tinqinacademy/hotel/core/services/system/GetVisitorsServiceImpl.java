@@ -7,8 +7,6 @@ import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsServ
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.model.Room;
-import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
-import com.tinqinacademy.hotel.persistence.repository.GuestRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
