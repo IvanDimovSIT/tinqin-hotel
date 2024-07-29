@@ -61,14 +61,14 @@ public class SystemController {
     public ResponseEntity<?> getVisitors(
             @RequestParam LocalDate startDate,
             @RequestParam LocalDate endDate,
-            @RequestParam String firstName,
-            @RequestParam String lastName,
-            @RequestParam String phoneNumber,
-            @RequestParam String idCardNumber,
-            @RequestParam LocalDate idCardValidity,
-            @RequestParam String idCardIssueAuthority,
-            @RequestParam LocalDate idCardIssueDate,
-            @RequestParam String roomNumber
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String phoneNumber,
+            @RequestParam(required = false) String idCardNumber,
+            @RequestParam(required = false) LocalDate idCardValidity,
+            @RequestParam(required = false) String idCardIssueAuthority,
+            @RequestParam(required = false) LocalDate idCardIssueDate,
+            @RequestParam(required = false) String roomNumber
     ) {
         GetVisitorsInput input = GetVisitorsInput.builder()
                 .startDate(startDate)
