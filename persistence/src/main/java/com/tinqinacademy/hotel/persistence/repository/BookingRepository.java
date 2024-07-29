@@ -20,12 +20,12 @@ public interface BookingRepository extends JpaRepository<Booking, UUID> {
             "JOIN b.user u " +
             "WHERE (:startDate IS NULL OR b.startDate = :startDate) " +
             "AND (:endDate IS NULL OR b.endDate = :endDate) " +
-            "AND (:firstName IS NULL OR g.firstName LIKE %:firstName%) " +
-            "AND (:lastName IS NULL OR g.lastName LIKE %:lastName%) " +
+            "AND (:firstName IS NULL OR g.firstName LIKE :firstName) " +
+            "AND (:lastName IS NULL OR g.lastName LIKE :lastName) " +
             "AND (:phoneNumber IS NULL OR u.phoneNumber = :phoneNumber) " +
             "AND (:idCardNumber IS NULL OR g.idCardNo = :idCardNumber) " +
             "AND (:idCardValidity IS NULL OR g.idCardValidity = :idCardValidity) " +
-            "AND (:idCardIssueAuthority IS NULL OR g.idCardIssueAuthority LIKE %:idCardIssueAuthority%) " +
+            "AND (:idCardIssueAuthority IS NULL OR g.idCardIssueAuthority LIKE :idCardIssueAuthority) " +
             "AND (:idCardIssueDate IS NULL OR g.idCardIssueDate = :idCardIssueDate) " +
             "AND (:roomNumber IS NULL OR r.roomNo = :roomNumber)")
     List<Booking> findBookingsByCriteria(
