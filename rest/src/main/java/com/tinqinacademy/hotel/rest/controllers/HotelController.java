@@ -14,7 +14,6 @@ import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomService;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomService;
-import com.tinqinacademy.hotel.api.services.HotelService;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
