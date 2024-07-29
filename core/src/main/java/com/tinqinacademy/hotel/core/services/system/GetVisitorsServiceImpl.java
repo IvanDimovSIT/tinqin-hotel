@@ -1,15 +1,12 @@
 package com.tinqinacademy.hotel.core.services.system;
 
 import com.tinqinacademy.hotel.api.model.visitor.VisitorOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomInput;
-import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsInput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsService;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
-import com.tinqinacademy.hotel.persistence.repository.GuestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;

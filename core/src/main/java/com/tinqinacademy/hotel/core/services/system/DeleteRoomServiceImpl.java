@@ -29,8 +29,7 @@ public class DeleteRoomServiceImpl implements DeleteRoomService {
 
     private boolean checkRoomOccupied(Room room) {
         LocalDate today = LocalDate.now();
-        boolean isRoomOccupied = bookingRepository.findAllByRoomId(room.getId()).stream()
-                .anyMatch(booking -> !today.isAfter(booking.getEndDate()));
+        boolean isRoomOccupied = bookingRepository.checkRoomOccupied(room.getId(), today, today);
 
         return isRoomOccupied;
     }
