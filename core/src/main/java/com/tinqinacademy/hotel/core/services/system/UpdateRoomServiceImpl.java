@@ -30,7 +30,7 @@ public class UpdateRoomServiceImpl implements UpdateRoomService {
 
     Room getRoom(String id){
        return roomRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new NotFoundException("Room with id:" + id + " not found"));
+                () -> new NotFoundException("Room with id:" + id));
     }
 
     List<Bed> findBedToAdd(BedSize bedSize, Integer bedCount){

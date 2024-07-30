@@ -34,7 +34,7 @@ public class PartialUpdateRoomServiceImpl implements PartialUpdateRoomService {
 
     private Room getRoom(String id){
        return roomRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new NotFoundException("Room with id:" + id + " not found"));
+                () -> new NotFoundException("Room with id:" + id));
     }
 
     private List<Bed> findBedsToAdd(Room currentRoom, BedSize bedSize, Integer bedCount) {

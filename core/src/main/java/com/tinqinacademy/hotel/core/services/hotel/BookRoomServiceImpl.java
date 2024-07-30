@@ -31,7 +31,7 @@ public class BookRoomServiceImpl implements BookRoomService {
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new NotFoundException("Room not found with id:" + id));
+                () -> new NotFoundException("Room with id:" + id));
     }
 
     @Override

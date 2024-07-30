@@ -20,7 +20,7 @@ public class UnbookRoomServiceImpl implements UnbookRoomService {
 
     private Booking getBooking(String id) {
         return bookingRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new NotFoundException("Booking with id:" + id + " not found"));
+                () -> new NotFoundException("Booking with id:" + id));
 
     }
 

@@ -24,7 +24,7 @@ public class DeleteRoomServiceImpl implements DeleteRoomService {
 
     private Room getRoom(String id){
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(
-                () -> new NotFoundException("Room with id:" + id + " not found"));
+                () -> new NotFoundException("Room with id:" + id));
     }
 
     private boolean checkRoomOccupied(Room room) {
@@ -44,7 +44,7 @@ public class DeleteRoomServiceImpl implements DeleteRoomService {
         boolean isRoomOccupied = checkRoomOccupied(room);
 
         if (isRoomOccupied) {
-            throw new DeleteRoomException("Room with id:" + room.getId() + " is occupied");
+            throw new DeleteRoomException(room.getId().toString());
         }
 
         roomRepository.delete(room);
