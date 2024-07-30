@@ -5,7 +5,7 @@ import com.tinqinacademy.hotel.core.conversion.BaseConverter;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 @Component
 public class BookRoomInputToBookingConverter extends BaseConverter<BookRoomInput, Booking> {
@@ -14,7 +14,7 @@ public class BookRoomInputToBookingConverter extends BaseConverter<BookRoomInput
         Booking booking = Booking.builder()
                 .startDate(source.getStartDate())
                 .endDate(source.getEndDate())
-                .guests(new ArrayList<>())
+                .guests(new HashSet<>())
                 .build();
 
         return booking;
