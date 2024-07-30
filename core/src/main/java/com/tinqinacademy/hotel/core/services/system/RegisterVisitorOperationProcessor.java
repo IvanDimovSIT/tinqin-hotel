@@ -1,15 +1,17 @@
 package com.tinqinacademy.hotel.core.services.system;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.model.visitor.VisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOutput;
-import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorService;
+import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.exception.exceptions.RegisterVisitorException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.GuestRepository;
+import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -21,7 +23,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RegisterVisitorServiceImpl implements RegisterVisitorService {
+public class RegisterVisitorOperationProcessor implements RegisterVisitorOperation {
     private final BookingRepository bookingRepository;
     private final GuestRepository guestRepository;
     private final ConversionService conversionService;
@@ -62,7 +64,7 @@ public class RegisterVisitorServiceImpl implements RegisterVisitorService {
     }
 
     @Override
-    public RegisterVisitorOutput process(RegisterVisitorInput input) {
+    public Either<Errors, RegisterVisitorOutput> process(RegisterVisitorInput input) {
         log.info("Start registerVisitor input:{}", input);
 
 

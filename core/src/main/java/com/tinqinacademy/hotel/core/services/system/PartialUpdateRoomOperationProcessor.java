@@ -5,15 +5,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomService;
+import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
+import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -26,7 +28,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PartialUpdateRoomServiceImpl implements PartialUpdateRoomService {
+public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOperation {
     private final RoomRepository roomRepository;
     private final BedRepository bedRepository;
     private final ObjectMapper objectMapper;
@@ -67,7 +69,7 @@ public class PartialUpdateRoomServiceImpl implements PartialUpdateRoomService {
     }
 
     @Override
-    public PartialUpdateRoomOutput process(PartialUpdateRoomInput input) {
+    public Either<Errors, PartialUpdateRoomOutput> process(PartialUpdateRoomInput input) {
         log.info("Start partialUpdateRoom input:{}", input);
 
         Room currentRoom = getRoom(input.getRoomId());

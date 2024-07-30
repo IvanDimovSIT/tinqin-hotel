@@ -1,8 +1,9 @@
 package com.tinqinacademy.hotel.core.services.system;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomService;
+import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -10,6 +11,7 @@ import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
+import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -23,7 +25,7 @@ import java.util.stream.IntStream;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class AddRoomServiceImpl implements AddRoomService {
+public class AddRoomOperationProcessor implements AddRoomOperation {
     private final BedRepository bedRepository;
     private final RoomRepository roomRepository;
     private final ConversionService conversionService;
@@ -42,7 +44,7 @@ public class AddRoomServiceImpl implements AddRoomService {
     }
 
     @Override
-    public AddRoomOutput process(AddRoomInput input) {
+    public Either<Errors, AddRoomOutput> process(AddRoomInput input) {
         log.info("Start addRoom input:{}", input);
 
         if (roomRepository.findByRoomNo(input.getRoomNumber()).isPresent()) {

@@ -3,22 +3,22 @@ package com.tinqinacademy.hotel.rest.controllers;
 
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomService;
+import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomService;
+import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOperation;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsInput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOutput;
-import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsService;
+import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOperation;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomService;
+import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOutput;
-import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorService;
+import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOperation;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomService;
+import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOperation;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -35,12 +35,12 @@ import java.time.LocalDate;
 @RequestMapping
 @RequiredArgsConstructor
 public class SystemController {
-    private final RegisterVisitorService registerVisitorService;
-    private final GetVisitorsService getVisitorsService;
-    private final AddRoomService addRoomService;
-    private final UpdateRoomService updateRoomService;
-    private final PartialUpdateRoomService partialUpdateRoomService;
-    private final DeleteRoomService deleteRoomService;
+    private final RegisterVisitorOperation registerVisitorOperation;
+    private final GetVisitorsOperation getVisitorsOperation;
+    private final AddRoomOperation addRoomOperation;
+    private final UpdateRoomOperation updateRoomOperation;
+    private final PartialUpdateRoomOperation partialUpdateRoomOperation;
+    private final DeleteRoomOperation deleteRoomOperation;
 
     @Operation(summary = "Registers a visitor as room renter", description = "Registers a visitor as room renter")
     @ApiResponses(value = {
@@ -51,7 +51,7 @@ public class SystemController {
     @PostMapping(RestApiRoutes.SYSTEM_REGISTER_VISITOR)
     public ResponseEntity<?> registerVisitor(@Valid @RequestBody RegisterVisitorInput input) {
 
-        RegisterVisitorOutput output = registerVisitorService.process(input);
+        RegisterVisitorOutput output = registerVisitorOperation.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -92,7 +92,7 @@ public class SystemController {
                 .roomNumber(roomNumber)
                 .build();
 
-        GetVisitorsOutput output = getVisitorsService.process(input);
+        GetVisitorsOutput output = getVisitorsOperation.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -109,7 +109,7 @@ public class SystemController {
     })
     @PostMapping(RestApiRoutes.SYSTEM_ADD_ROOM)
     public ResponseEntity<?> addRoom(@Valid @RequestBody AddRoomInput input) {
-        AddRoomOutput output = addRoomService.process(input);
+        AddRoomOutput output = addRoomOperation.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -130,7 +130,7 @@ public class SystemController {
                 .roomId(roomId)
                 .build();
 
-        UpdateRoomOutput output = updateRoomService.process(updateRoomInput);
+        UpdateRoomOutput output = updateRoomOperation.process(updateRoomInput);
 
         return new ResponseEntity<>(
                 output,
@@ -150,7 +150,7 @@ public class SystemController {
                 .roomId(roomId)
                 .build();
 
-        PartialUpdateRoomOutput output = partialUpdateRoomService.process(partialUpdateRoomInput);
+        PartialUpdateRoomOutput output = partialUpdateRoomOperation.process(partialUpdateRoomInput);
 
         return new ResponseEntity<>(
                 output,
@@ -171,7 +171,7 @@ public class SystemController {
                 .id(roomId)
                 .build();
 
-        DeleteRoomOutput output = deleteRoomService.process(input);
+        DeleteRoomOutput output = deleteRoomOperation.process(input);
 
         return new ResponseEntity<>(
                 output,

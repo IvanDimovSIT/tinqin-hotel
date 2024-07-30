@@ -1,11 +1,13 @@
 package com.tinqinacademy.hotel.core.services.hotel;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
+import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UnbookRoomServiceImpl implements UnbookRoomService {
+public class UnbookRoomOperationProcessor implements UnbookRoomOperation {
     private final BookingRepository bookingRepository;
 
     private Booking getBooking(String id) {
@@ -25,7 +27,7 @@ public class UnbookRoomServiceImpl implements UnbookRoomService {
     }
 
     @Override
-    public UnbookRoomOutput process(UnbookRoomInput input) {
+    public Either<Errors, UnbookRoomOutput> process(UnbookRoomInput input) {
         log.info("Start unbookRoom input:{}", input);
 
         Booking booking = getBooking(input.getBookingId());

@@ -1,5 +1,6 @@
 package com.tinqinacademy.hotel.api.operations.hotel.unbookroom;
 
+import com.tinqinacademy.hotel.api.base.OperationInput;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @ToString
 @Getter
 @Setter
-public class UnbookRoomInput {
+public class UnbookRoomInput implements OperationInput {
     @NotEmpty
     private String bookingId;
 }

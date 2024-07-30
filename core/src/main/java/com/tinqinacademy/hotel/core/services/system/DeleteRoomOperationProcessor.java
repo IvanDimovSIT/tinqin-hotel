@@ -2,7 +2,7 @@ package com.tinqinacademy.hotel.core.services.system;
 
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOutput;
-import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomService;
+import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Room;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DeleteRoomServiceImpl implements DeleteRoomService {
+public class DeleteRoomOperationProcessor implements DeleteRoomOperation {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
 

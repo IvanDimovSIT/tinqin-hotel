@@ -1,10 +1,12 @@
 package com.tinqinacademy.hotel.api.operations.hotel.getroom;
 
 
+import com.tinqinacademy.hotel.api.base.OperationOutput;
 import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.model.enums.BedSize;
 import lombok.*;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -15,7 +17,7 @@ import java.util.List;
 @ToString
 @Getter
 @Setter
-public class GetRoomOutput {
+public class GetRoomOutput implements OperationOutput {
     private String id;
     private String number;
     private Integer bedCount;

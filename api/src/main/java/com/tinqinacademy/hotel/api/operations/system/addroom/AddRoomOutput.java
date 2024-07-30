@@ -1,5 +1,6 @@
 package com.tinqinacademy.hotel.api.operations.system.addroom;
 
+import com.tinqinacademy.hotel.api.base.OperationOutput;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
@@ -9,6 +10,6 @@ import lombok.*;
 @ToString
 @Getter
 @Setter
-public class AddRoomOutput {
+public class AddRoomOutput implements OperationOutput {
     private String id;
 }

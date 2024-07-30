@@ -1,12 +1,14 @@
 package com.tinqinacademy.hotel.core.services.system;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.model.visitor.VisitorOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsInput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOutput;
-import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsService;
+import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOperation;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.model.Room;
+import io.vavr.control.Either;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
@@ -21,7 +23,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GetVisitorsServiceImpl implements GetVisitorsService {
+public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
     private final ConversionService conversionService;
     private final EntityManager entityManager;
 
@@ -32,7 +34,7 @@ public class GetVisitorsServiceImpl implements GetVisitorsService {
     }
 
     @Override
-    public GetVisitorsOutput process(GetVisitorsInput input) {
+    public Either<Errors, GetVisitorsOutput> process(GetVisitorsInput input) {
         log.info("Start getVisitors input:{}", input);
 
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();

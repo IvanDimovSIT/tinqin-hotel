@@ -1,13 +1,15 @@
 package com.tinqinacademy.hotel.core.services.hotel;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
+import io.vavr.control.Either;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
@@ -22,7 +24,7 @@ import java.util.UUID;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GetRoomServiceImpl implements GetRoomService {
+public class GetRoomOperationProcessor implements GetRoomOperation {
     private final ConversionService conversionService;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
@@ -46,7 +48,7 @@ public class GetRoomServiceImpl implements GetRoomService {
     }
 
     @Override
-    public GetRoomOutput process(GetRoomInput input) {
+    public Either<Errors, GetRoomOutput> process(GetRoomInput input) {
         log.info("Start getRoom input:{}", input);
 
         Room room = getRoom(input.getId());

@@ -1,5 +1,6 @@
 package com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms;
 
+import com.tinqinacademy.hotel.api.base.OperationOutput;
 import lombok.*;
 
 import java.util.List;
@@ -10,6 +11,6 @@ import java.util.List;
 @ToString
 @Getter
 @Setter
-public class CheckAvailableRoomsOutput {
+public class CheckAvailableRoomsOutput implements OperationOutput {
     private List<String> ids;
 }

@@ -4,16 +4,16 @@ import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.model.enums.BedSize;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOperation;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsInput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsService;
+import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOperation;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOperation;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOperation;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,10 +30,10 @@ import java.time.LocalDate;
 @RequestMapping
 @RequiredArgsConstructor
 public class HotelController {
-    private final CheckAvailableRoomsService checkAvailableRoomsService;
-    private final GetRoomService getRoomService;
-    private final BookRoomService bookRoomService;
-    private final UnbookRoomService unbookRoomService;
+    private final CheckAvailableRoomsOperation checkAvailableRoomsService;
+    private final GetRoomOperation getRoomOperation;
+    private final BookRoomOperation bookRoomService;
+    private final UnbookRoomOperation unbookRoomOperation;
 
     @Operation(summary = "Checks whether a room is available for a certain period", description = "Checks whether a" +
             " room is available for a certain period. Room requirements should come as query parameters in URL.")
@@ -79,7 +79,7 @@ public class HotelController {
                 .id(roomId)
                 .build();
 
-        GetRoomOutput output = getRoomService.process(input);
+        GetRoomOutput output = getRoomOperation.process(input);
 
         return new ResponseEntity<>(
                 output,
@@ -120,7 +120,7 @@ public class HotelController {
                 .bookingId(bookingId)
                 .build();
 
-        UnbookRoomOutput output = unbookRoomService.process(input);
+        UnbookRoomOutput output = unbookRoomOperation.process(input);
 
         return new ResponseEntity<>(
                 output,

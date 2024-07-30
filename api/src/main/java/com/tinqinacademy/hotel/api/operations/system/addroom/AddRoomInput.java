@@ -1,6 +1,7 @@
 package com.tinqinacademy.hotel.api.operations.system.addroom;
 
 
+import com.tinqinacademy.hotel.api.base.OperationInput;
 import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.model.enums.BedSize;
 import jakarta.validation.constraints.*;
@@ -14,7 +15,7 @@ import java.math.BigDecimal;
 @ToString
 @Getter
 @Setter
-public class AddRoomInput {
+public class AddRoomInput implements OperationInput {
     @NotNull
     @Min(value = 1)
     @Max(value = 10)
