@@ -74,6 +74,7 @@ public class GetVisitorsServiceImpl implements GetVisitorsService {
             predicates.add(criteriaBuilder.like(roomJoin.get("roomNo"), input.getRoomNumber()));
         }
 
+
         query.where(predicates.toArray(new Predicate[0]));
         query.multiselect(guestJoin, bookingRoot);
 
