@@ -40,7 +40,7 @@ public class RegisterVisitorServiceImpl implements RegisterVisitorService {
                         visitor.getEndDate())
                 .orElseThrow(
                         () -> new NotFoundException(
-                                "Booking not found with roomId:" + visitor.getRoomId() +
+                                "Booking with roomId:" + visitor.getRoomId() +
                                         " start date:" + visitor.getStartDate() +
                                         " end date:" + visitor.getEndDate()));
 
