@@ -25,6 +25,12 @@ public class GetVisitorsServiceImpl implements GetVisitorsService {
     private final ConversionService conversionService;
     private final EntityManager entityManager;
 
+    private <T> void addPredicateIfPresent(List<Predicate> predicates, Predicate predicate, T field) {
+        if(field != null){
+            predicates.add(predicate);
+        }
+    }
+
     @Override
     public GetVisitorsOutput process(GetVisitorsInput input) {
         log.info("Start getVisitors input:{}", input);
@@ -49,31 +55,14 @@ public class GetVisitorsServiceImpl implements GetVisitorsService {
         predicates.add(criteriaBuilder.or(startDatePredicate, endDatePredicate,
                 criteriaBuilder.and(overlapStartDatePredicate, overlapEndDatePredicate)));
 
-        if (input.getFirstName() != null) {
-            predicates.add(criteriaBuilder.like(guestJoin.get("firstName"), input.getFirstName()));
-        }
-        if (input.getLastName() != null) {
-            predicates.add(criteriaBuilder.like(guestJoin.get("lastName"), input.getLastName()));
-        }
-        if (input.getPhoneNumber() != null) {
-            predicates.add(criteriaBuilder.equal(guestJoin.get("phoneNumber"), input.getPhoneNumber()));
-        }
-        if (input.getIdCardNumber() != null) {
-            predicates.add(criteriaBuilder.equal(guestJoin.get("idCardNo"), input.getIdCardNumber()));
-        }
-        if (input.getIdCardValidity() != null) {
-            predicates.add(criteriaBuilder.equal(guestJoin.get("idCardValidity"), input.getIdCardValidity()));
-        }
-        if (input.getIdCardIssueAuthority() != null) {
-            predicates.add(criteriaBuilder.like(guestJoin.get("idCardIssueAuthority"), input.getIdCardIssueAuthority()));
-        }
-        if (input.getIdCardIssueDate() != null) {
-            predicates.add(criteriaBuilder.equal(guestJoin.get("idCardIssueDate"), input.getIdCardIssueDate()));
-        }
-        if (input.getRoomNumber() != null) {
-            predicates.add(criteriaBuilder.like(roomJoin.get("roomNo"), input.getRoomNumber()));
-        }
-
+        addPredicateIfPresent(predicates, criteriaBuilder.like(guestJoin.get("firstName"), input.getFirstName()), input.getFirstName());
+        addPredicateIfPresent(predicates, criteriaBuilder.like(guestJoin.get("lastName"), input.getLastName()), input.getLastName());
+        addPredicateIfPresent(predicates, criteriaBuilder.like(guestJoin.get("phoneNumber"), input.getPhoneNumber()), input.getPhoneNumber());
+        addPredicateIfPresent(predicates, criteriaBuilder.equal(guestJoin.get("idCardNo"), input.getIdCardNumber()), input.getIdCardNumber());
+        addPredicateIfPresent(predicates, criteriaBuilder.equal(guestJoin.get("idCardValidity"), input.getIdCardValidity()), input.getIdCardValidity());
+        addPredicateIfPresent(predicates, criteriaBuilder.equal(guestJoin.get("idCardIssueAuthority"), input.getIdCardIssueAuthority()), input.getIdCardIssueAuthority());
+        addPredicateIfPresent(predicates, criteriaBuilder.equal(guestJoin.get("idCardIssueDate"), input.getIdCardIssueDate()), input.getIdCardIssueDate());
+        addPredicateIfPresent(predicates, criteriaBuilder.like(roomJoin.get("roomNo"), input.getRoomNumber()), input.getRoomNumber());
 
         query.where(predicates.toArray(new Predicate[0]));
         query.multiselect(guestJoin, bookingRoot);
