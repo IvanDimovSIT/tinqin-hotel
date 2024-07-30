@@ -9,16 +9,21 @@ import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import io.vavr.control.Either;
+import io.vavr.control.Try;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
 
 @Service
 @Slf4j
@@ -28,15 +33,12 @@ public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
     private final EntityManager entityManager;
 
     private <T> void addPredicateIfPresent(List<Predicate> predicates, Predicate predicate, T field) {
-        if(field != null){
+        if (field != null) {
             predicates.add(predicate);
         }
     }
 
-    @Override
-    public Either<Errors, GetVisitorsOutput> process(GetVisitorsInput input) {
-        log.info("Start getVisitors input:{}", input);
-
+    private List<Tuple> findVisitors(GetVisitorsInput input) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
         Root<Booking> bookingRoot = query.from(Booking.class);
@@ -69,8 +71,11 @@ public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
         query.where(predicates.toArray(new Predicate[0]));
         query.multiselect(guestJoin, bookingRoot);
 
-        List<Tuple> results = entityManager.createQuery(query).getResultList();
-        List<VisitorOutput> visitorOutputs = results.stream()
+        return entityManager.createQuery(query).getResultList();
+    }
+
+    private List<VisitorOutput> mapVisitors(List<Tuple> foundGuestsBookings) {
+        return foundGuestsBookings.stream()
                 .map(tuple -> {
                     Guest guest = tuple.get(0, Guest.class);
                     Booking booking = tuple.get(1, Booking.class);
@@ -84,11 +89,27 @@ public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
                     return visitorOutput;
                 })
                 .toList();
+    }
 
+    @Override
+    public Either<Errors, GetVisitorsOutput> process(GetVisitorsInput input) {
+        log.info("Start getVisitors input:{}", input);
 
-        GetVisitorsOutput result = GetVisitorsOutput.builder()
-                .visitorOutputs(visitorOutputs)
-                .build();
+        Either<Errors, GetVisitorsOutput> result = Try.of(() -> {
+                    List<Tuple> results = findVisitors(input);
+                    List<VisitorOutput> visitorOutputs = mapVisitors(results);
+
+                    return GetVisitorsOutput.builder()
+                            .visitorOutputs(visitorOutputs)
+                            .build();
+                })
+                .toEither()
+                .mapLeft(throwable -> Match(throwable).of(
+                        Case($(), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+                                .build()
+                        )
+                ));
 
         log.info("End getVisitors result:{}", result);
 

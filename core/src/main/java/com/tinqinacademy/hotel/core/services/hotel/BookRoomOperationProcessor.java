@@ -24,8 +24,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static com.google.common.base.Predicates.instanceOf;
 import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
 
 @Service
 @Slf4j

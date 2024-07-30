@@ -9,21 +9,28 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
+import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
 import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
 
 @Service
 @Slf4j
@@ -34,8 +41,8 @@ public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOpe
     private final ObjectMapper objectMapper;
     private final ConversionService conversionService;
 
-    private Room getRoom(String id){
-       return roomRepository.findById(UUID.fromString(id)).orElseThrow(
+    private Room getRoom(String id) {
+        return roomRepository.findById(UUID.fromString(id)).orElseThrow(
                 () -> new NotFoundException("Room with id:" + id));
     }
 
@@ -56,7 +63,7 @@ public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOpe
         return newBeds;
     }
 
-    private Room patchRoom(Room currentRoom, Room newRoom){
+    private Room patchRoom(Room currentRoom, Room newRoom) {
         JsonNode roomNode = objectMapper.valueToTree(currentRoom);
         JsonNode inputNode = objectMapper.valueToTree(newRoom);
 
@@ -64,7 +71,7 @@ public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOpe
             JsonMergePatch patch = JsonMergePatch.fromJson(inputNode);
             return objectMapper.treeToValue(patch.apply(roomNode), Room.class);
         } catch (JsonPatchException | JsonProcessingException e) {
-            throw new RuntimeException(e);
+            throw new PartialUpdateRoomException(e.getMessage());
         }
     }
 
@@ -72,19 +79,37 @@ public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOpe
     public Either<Errors, PartialUpdateRoomOutput> process(PartialUpdateRoomInput input) {
         log.info("Start partialUpdateRoom input:{}", input);
 
-        Room currentRoom = getRoom(input.getRoomId());
+        Either<Errors, PartialUpdateRoomOutput> result = Try.of(() -> {
+                    Room currentRoom = getRoom(input.getRoomId());
 
-        List<Bed> newBeds = findBedsToAdd(currentRoom, BedSize.getCode(input.getBedSize().toString()),input.getBedCount());
+                    List<Bed> newBeds = findBedsToAdd(currentRoom, BedSize.getCode(input.getBedSize().toString()), input.getBedCount());
 
-        Room newRoom = conversionService.convert(input, Room.class);
-        newRoom.setBeds(newBeds);
+                    Room newRoom = conversionService.convert(input, Room.class);
+                    newRoom.setBeds(newBeds);
 
 
-        newRoom = patchRoom(currentRoom, newRoom);
+                    newRoom = patchRoom(currentRoom, newRoom);
 
-        Room savedRoom = roomRepository.save(newRoom);
+                    Room savedRoom = roomRepository.save(newRoom);
 
-        PartialUpdateRoomOutput result = conversionService.convert(savedRoom, PartialUpdateRoomOutput.class);
+                    return conversionService.convert(savedRoom, PartialUpdateRoomOutput.class);
+                })
+                .toEither()
+                .mapLeft(throwable -> Match(throwable).of(
+                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
+                                .build()
+                        ),
+                        Case($(instanceOf(PartialUpdateRoomException.class)), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
+                                .build()
+                        ),
+
+                        Case($(), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+                                .build()
+                        )
+                ));
 
         log.info("End partialUpdateRoom result:{}", result);
 

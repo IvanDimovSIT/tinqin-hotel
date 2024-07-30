@@ -1,6 +1,7 @@
 package com.tinqinacademy.hotel.rest.controllers;
 
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
@@ -20,9 +21,11 @@ import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOperation;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
+import com.tinqinacademy.hotel.core.response.ResponseEntityMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.vavr.control.Either;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,6 +44,7 @@ public class SystemController {
     private final UpdateRoomOperation updateRoomOperation;
     private final PartialUpdateRoomOperation partialUpdateRoomOperation;
     private final DeleteRoomOperation deleteRoomOperation;
+    private final ResponseEntityMapper responseEntityMapper;
 
     @Operation(summary = "Registers a visitor as room renter", description = "Registers a visitor as room renter")
     @ApiResponses(value = {
@@ -50,13 +54,9 @@ public class SystemController {
     })
     @PostMapping(RestApiRoutes.SYSTEM_REGISTER_VISITOR)
     public ResponseEntity<?> registerVisitor(@Valid @RequestBody RegisterVisitorInput input) {
+        Either<Errors, RegisterVisitorOutput> output = registerVisitorOperation.process(input);
 
-        RegisterVisitorOutput output = registerVisitorOperation.process(input);
-
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Finds info on visitors", description = "Admin only. Provides a report based on" +
@@ -92,12 +92,9 @@ public class SystemController {
                 .roomNumber(roomNumber)
                 .build();
 
-        GetVisitorsOutput output = getVisitorsOperation.process(input);
+        Either<Errors, GetVisitorsOutput> output = getVisitorsOperation.process(input);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
 
@@ -109,12 +106,9 @@ public class SystemController {
     })
     @PostMapping(RestApiRoutes.SYSTEM_ADD_ROOM)
     public ResponseEntity<?> addRoom(@Valid @RequestBody AddRoomInput input) {
-        AddRoomOutput output = addRoomOperation.process(input);
+        Either<Errors, AddRoomOutput> output = addRoomOperation.process(input);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.CREATED
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update room data", description = "Admin updates the info regarding a certain" +
@@ -130,12 +124,9 @@ public class SystemController {
                 .roomId(roomId)
                 .build();
 
-        UpdateRoomOutput output = updateRoomOperation.process(updateRoomInput);
+        Either<Errors, UpdateRoomOutput> output = updateRoomOperation.process(updateRoomInput);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Admin partial update of room data", description = "Admin partial update of room data")
@@ -150,12 +141,9 @@ public class SystemController {
                 .roomId(roomId)
                 .build();
 
-        PartialUpdateRoomOutput output = partialUpdateRoomOperation.process(partialUpdateRoomInput);
+        Either<Errors, PartialUpdateRoomOutput> output = partialUpdateRoomOperation.process(partialUpdateRoomInput);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Deletes a room", description = "Deletes a room" +
@@ -171,11 +159,8 @@ public class SystemController {
                 .id(roomId)
                 .build();
 
-        DeleteRoomOutput output = deleteRoomOperation.process(input);
+        Either<Errors, DeleteRoomOutput> output = deleteRoomOperation.process(input);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 }

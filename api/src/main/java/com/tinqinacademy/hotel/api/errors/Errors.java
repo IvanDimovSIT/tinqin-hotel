@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ToString
+@Getter
 @AllArgsConstructor
-public class Errors extends RuntimeException {
+public class Errors {
     public static class ErrorsBuilder {
         private List<ErrorInfo> errorInfos;
 
@@ -36,6 +37,10 @@ public class Errors extends RuntimeException {
 
     public void addError(ErrorInfo errorInfo) {
         errorInfos.add(errorInfo);
+    }
+
+    public HttpStatus getStatus() {
+        return errorInfos.getFirst().getStatus();
     }
 
     public static ErrorsBuilder builder() {
