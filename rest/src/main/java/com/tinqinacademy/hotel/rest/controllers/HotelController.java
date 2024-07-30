@@ -1,23 +1,26 @@
 package com.tinqinacademy.hotel.rest.controllers;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.model.enums.BedSize;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOperation;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsInput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsService;
+import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOperation;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOperation;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOperation;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
+import com.tinqinacademy.hotel.core.response.ResponseEntityMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.vavr.control.Either;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,10 +33,11 @@ import java.time.LocalDate;
 @RequestMapping
 @RequiredArgsConstructor
 public class HotelController {
-    private final CheckAvailableRoomsService checkAvailableRoomsService;
-    private final GetRoomService getRoomService;
-    private final BookRoomService bookRoomService;
-    private final UnbookRoomService unbookRoomService;
+    private final CheckAvailableRoomsOperation checkAvailableRoomsService;
+    private final GetRoomOperation getRoomOperation;
+    private final BookRoomOperation bookRoomService;
+    private final UnbookRoomOperation unbookRoomOperation;
+    private final ResponseEntityMapper responseEntityMapper;
 
     @Operation(summary = "Checks whether a room is available for a certain period", description = "Checks whether a" +
             " room is available for a certain period. Room requirements should come as query parameters in URL.")
@@ -57,12 +61,9 @@ public class HotelController {
                 .build();
 
 
-        CheckAvailableRoomsOutput output = checkAvailableRoomsService.process(input);
+        Either<Errors, CheckAvailableRoomsOutput> output = checkAvailableRoomsService.process(input);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
 
@@ -79,12 +80,8 @@ public class HotelController {
                 .id(roomId)
                 .build();
 
-        GetRoomOutput output = getRoomService.process(input);
-
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        Either<Errors, GetRoomOutput> output = getRoomOperation.process(input);
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Books the room", description = "Books the room specified")
@@ -99,12 +96,9 @@ public class HotelController {
                 .id(roomId)
                 .build();
 
-        BookRoomOutput output = bookRoomService.process(input);
+        Either<Errors, BookRoomOutput> output = bookRoomService.process(input);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.CREATED
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Unbooks a booked room", description = "Unbooks a room that the user has already" +
@@ -120,12 +114,9 @@ public class HotelController {
                 .bookingId(bookingId)
                 .build();
 
-        UnbookRoomOutput output = unbookRoomService.process(input);
+        Either<Errors, UnbookRoomOutput> output = unbookRoomOperation.process(input);
 
-        return new ResponseEntity<>(
-                output,
-                HttpStatus.OK
-        );
+        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
     }
 
 

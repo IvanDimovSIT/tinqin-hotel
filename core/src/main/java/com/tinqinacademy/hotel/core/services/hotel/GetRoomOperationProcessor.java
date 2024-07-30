@@ -1,16 +1,20 @@
 package com.tinqinacademy.hotel.core.services.hotel;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
-import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomService;
+import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,10 +23,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class GetRoomServiceImpl implements GetRoomService {
+public class GetRoomOperationProcessor implements GetRoomOperation {
     private final ConversionService conversionService;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
@@ -46,17 +53,31 @@ public class GetRoomServiceImpl implements GetRoomService {
     }
 
     @Override
-    public GetRoomOutput process(GetRoomInput input) {
+    public Either<Errors, GetRoomOutput> process(GetRoomInput input) {
         log.info("Start getRoom input:{}", input);
 
-        Room room = getRoom(input.getId());
+        Either<Errors, GetRoomOutput> result = Try.of(() -> {
+                    Room room = getRoom(input.getId());
 
-        GetRoomOutput result = conversionService.convert(room, GetRoomOutput.class);
+                    GetRoomOutput output = conversionService.convert(room, GetRoomOutput.class);
 
-        List<Booking> bookings = bookingRepository.findAllByRoomId(room.getId());
-        List<LocalDate> datesOccupied = findDatesOccupied(bookings);
+                    List<Booking> bookings = bookingRepository.findAllByRoomId(room.getId());
+                    List<LocalDate> datesOccupied = findDatesOccupied(bookings);
 
-        result.setDatesOccupied(datesOccupied);
+                    output.setDatesOccupied(datesOccupied);
+                    return output;
+                })
+                .toEither()
+                .mapLeft(throwable -> Match(throwable).of(
+                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
+                                .build()
+                        ),
+                        Case($(), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+                                .build()
+                        )
+                ));
 
         log.info("End getRoom result:{}", result);
 

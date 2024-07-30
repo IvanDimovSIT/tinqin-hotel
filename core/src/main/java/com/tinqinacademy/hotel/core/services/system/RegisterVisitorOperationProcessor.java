@@ -1,39 +1,47 @@
 package com.tinqinacademy.hotel.core.services.system;
 
+import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.model.visitor.VisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOutput;
-import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorService;
+import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOperation;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.RegisterVisitorException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.GuestRepository;
+import io.vavr.control.Either;
+import io.vavr.control.Try;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+import static io.vavr.API.*;
+import static io.vavr.Predicates.instanceOf;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class RegisterVisitorServiceImpl implements RegisterVisitorService {
+public class RegisterVisitorOperationProcessor implements RegisterVisitorOperation {
     private final BookingRepository bookingRepository;
     private final GuestRepository guestRepository;
     private final ConversionService conversionService;
 
-    private boolean checkCardInvalid(VisitorInput visitor){
+    private boolean checkCardInvalid(VisitorInput visitor) {
         return !(visitor.getIdCardNumber() != null && visitor.getIdCardIssueDate() != null &&
                 visitor.getIdCardIssueAuthority() != null && visitor.getIdCardValidity() != null) &&
                 !(visitor.getIdCardNumber() == null && visitor.getIdCardIssueDate() == null &&
                         visitor.getIdCardIssueAuthority() == null && visitor.getIdCardValidity() == null);
     }
 
-    private Booking findBookingForVisitor(VisitorInput visitor){
+    private Booking findBookingForVisitor(VisitorInput visitor) {
         Booking booking = bookingRepository.findByRoomIdAndStartDateAndEndDate(
                         UUID.fromString(visitor.getRoomId()),
                         visitor.getStartDate(),
@@ -47,7 +55,7 @@ public class RegisterVisitorServiceImpl implements RegisterVisitorService {
         return booking;
     }
 
-    private Guest saveVisitor(VisitorInput visitor){
+    private Guest saveVisitor(VisitorInput visitor) {
         if (checkCardInvalid(visitor)) {
             throw new RegisterVisitorException("Error registering visitor: invalid id information");
         }
@@ -62,19 +70,35 @@ public class RegisterVisitorServiceImpl implements RegisterVisitorService {
     }
 
     @Override
-    public RegisterVisitorOutput process(RegisterVisitorInput input) {
+    public Either<Errors, RegisterVisitorOutput> process(RegisterVisitorInput input) {
         log.info("Start registerVisitor input:{}", input);
 
+        Either<Errors, RegisterVisitorOutput> result = Try.of(() -> {
+                    List<Guest> guests = input.getVisitorInputs().stream()
+                            .map(this::saveVisitor)
+                            .toList();
 
-        List<Guest> guests = input.getVisitorInputs().stream()
-                .map(this::saveVisitor)
-                .toList();
+                    log.info("registerVisitor created guests:{}", guests);
 
-        log.info("registerVisitor created guests:{}", guests);
+                    return RegisterVisitorOutput.builder()
+                            .build();
+                })
+                .toEither()
+                .mapLeft(throwable -> Match(throwable).of(
+                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
+                                .build()
+                        ),
+                        Case($(instanceOf(RegisterVisitorException.class)), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
+                                .build()
+                        ),
 
-        RegisterVisitorOutput result = RegisterVisitorOutput.builder()
-                .build();
-
+                        Case($(), Errors.builder()
+                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+                                .build()
+                        )
+                ));
         log.info("End registerVisitor result:{}", result);
 
         return result;
