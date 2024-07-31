@@ -48,6 +48,7 @@ public class CheckAvailableRoomsOperationProcessor extends BaseOperationProcesso
         log.info("Start checkAvailableRooms input:{}", input);
 
         Either<Errors, CheckAvailableRoomsOutput> result = Try.of(() -> {
+                    validate(input);
                     BathroomType bathroomTypeCriteria = getBathroomTypeCriteria(input);
                     BedSize bedSizeCriteria = getBedSizeCriteria(input);
 

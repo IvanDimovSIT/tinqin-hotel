@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,15 +52,15 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
                 () -> new NotFoundException("Room with id:" + id));
     }
 
-    private List<Bed> findBedsToAdd(Room currentRoom, BedSize bedSize, Integer bedCount) {
+    private List<Bed> findBedsToAdd(Room currentRoom, Optional<BedSize> bedSize, Optional<Integer> bedCount) {
         List<Bed> newBeds = new ArrayList<>();
         Bed bedToAdd = currentRoom.getBeds().getFirst();
         int numberOfbedsToAdd = currentRoom.getBeds().size();
-        if (bedSize != null) {
-            bedToAdd = bedRepository.findByBedSize(BedSize.getCode(bedSize.toString())).get();
+        if (bedSize.isPresent()) {
+            bedToAdd = bedRepository.findByBedSize(BedSize.getCode(bedSize.get().toString())).get();
         }
-        if (bedCount != null) {
-            numberOfbedsToAdd = bedCount;
+        if (bedCount.isPresent()) {
+            numberOfbedsToAdd = bedCount.get();
         }
         for (int i = 0; i < numberOfbedsToAdd; i++) {
             newBeds.add(bedToAdd);
@@ -85,9 +86,14 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
         log.info("Start partialUpdateRoom input:{}", input);
 
         Either<Errors, PartialUpdateRoomOutput> result = Try.of(() -> {
+                    validate(input);
                     Room currentRoom = getRoom(input.getRoomId());
 
-                    List<Bed> newBeds = findBedsToAdd(currentRoom, BedSize.getCode(input.getBedSize().toString()), input.getBedCount());
+                    List<Bed> newBeds = findBedsToAdd(
+                            currentRoom,
+                            input.getBedSize() == null? Optional.empty():
+                                    Optional.of(BedSize.getCode(input.getBedSize().toString())),
+                            Optional.ofNullable(input.getBedCount()));
 
                     Room newRoom = conversionService.convert(input, Room.class);
                     newRoom.setBeds(newBeds);

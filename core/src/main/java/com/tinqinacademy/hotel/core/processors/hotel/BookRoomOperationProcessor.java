@@ -78,6 +78,7 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
                     Booking booking = convertInputToBooking(input);
                     Booking savedBooking = saveBookingWithRoomAndUser(
                             booking, room, user, input.getStartDate(), input.getEndDate());
+                    log.info("process saved booking:{},", savedBooking);
 
                     BookRoomOutput bookRoomOutput = BookRoomOutput.builder()
                             .build();
