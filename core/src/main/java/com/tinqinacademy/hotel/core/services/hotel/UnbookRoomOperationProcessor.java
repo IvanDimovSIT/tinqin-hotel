@@ -4,6 +4,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
@@ -24,6 +25,7 @@ import static io.vavr.Predicates.instanceOf;
 @RequiredArgsConstructor
 public class UnbookRoomOperationProcessor implements UnbookRoomOperation {
     private final BookingRepository bookingRepository;
+    private final ErrorMapper errorMapper;
 
     private Booking getBooking(String id) {
         return bookingRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -44,16 +46,7 @@ public class UnbookRoomOperationProcessor implements UnbookRoomOperation {
                             .build();
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End unbookRoom result:{}", result);
 

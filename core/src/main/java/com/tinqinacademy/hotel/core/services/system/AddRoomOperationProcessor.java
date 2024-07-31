@@ -4,6 +4,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.ErrorManager;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -34,6 +36,7 @@ public class AddRoomOperationProcessor implements AddRoomOperation {
     private final BedRepository bedRepository;
     private final RoomRepository roomRepository;
     private final ConversionService conversionService;
+    private final ErrorMapper errorMapper;
 
     private List<Bed> findBedsToAdd(BedSize bedSize, Integer bedCount){
         Optional<Bed> bed = bedRepository.findByBedSize(bedSize);
@@ -71,20 +74,7 @@ public class AddRoomOperationProcessor implements AddRoomOperation {
                     return conversionService.convert(room, AddRoomOutput.class);
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(instanceOf(CreateRoomException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
         log.info("End addRoom result:{}", result);
 
         return result;

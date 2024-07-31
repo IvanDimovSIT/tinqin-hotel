@@ -4,6 +4,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.BookRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.logging.ErrorManager;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
@@ -35,6 +37,7 @@ public class BookRoomOperationProcessor implements BookRoomOperation {
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
     private final ConversionService conversionService;
+    private final ErrorMapper errorMapper;
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id))
@@ -82,16 +85,7 @@ public class BookRoomOperationProcessor implements BookRoomOperation {
                     return bookRoomOutput;
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End bookRoom result:{}", result);
         return result;

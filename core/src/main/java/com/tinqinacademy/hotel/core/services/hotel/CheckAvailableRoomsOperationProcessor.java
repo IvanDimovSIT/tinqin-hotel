@@ -4,6 +4,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsInput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
@@ -28,6 +29,7 @@ import static io.vavr.Predicates.instanceOf;
 public class CheckAvailableRoomsOperationProcessor implements CheckAvailableRoomsOperation {
     private final RoomRepository roomRepository;
     private final ConversionService conversionService;
+    private final ErrorMapper errorMapper;
 
     private BathroomType getBathroomTypeCriteria(CheckAvailableRoomsInput input) {
         return input.getBathroomType() == null ? null :
@@ -59,12 +61,7 @@ public class CheckAvailableRoomsOperationProcessor implements CheckAvailableRoom
                     return conversionService.convert(rooms, CheckAvailableRoomsOutput.class);
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
         log.info("End checkAvailableRooms result:{}", result);
 
         return result;

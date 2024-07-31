@@ -5,9 +5,11 @@ import com.tinqinacademy.hotel.api.model.visitor.VisitorOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsInput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.model.Room;
+import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import jakarta.persistence.EntityManager;
@@ -31,6 +33,7 @@ import static io.vavr.Predicates.instanceOf;
 public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
     private final ConversionService conversionService;
     private final EntityManager entityManager;
+    private final ErrorMapper errorMapper;
 
     private <T> void addPredicateIfPresent(List<Predicate> predicates, Predicate predicate, T field) {
         if (field != null) {
@@ -104,12 +107,7 @@ public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
                             .build();
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End getVisitors result:{}", result);
 

@@ -5,6 +5,7 @@ import com.tinqinacademy.hotel.api.model.visitor.VisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorInput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOutput;
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.RegisterVisitorException;
@@ -33,6 +34,7 @@ public class RegisterVisitorOperationProcessor implements RegisterVisitorOperati
     private final BookingRepository bookingRepository;
     private final GuestRepository guestRepository;
     private final ConversionService conversionService;
+    private final ErrorMapper errorMapper;
 
     private boolean checkCardInvalid(VisitorInput visitor) {
         return !(visitor.getIdCardNumber() != null && visitor.getIdCardIssueDate() != null &&
@@ -84,21 +86,7 @@ public class RegisterVisitorOperationProcessor implements RegisterVisitorOperati
                             .build();
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(instanceOf(RegisterVisitorException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
-                                .build()
-                        ),
-
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
         log.info("End registerVisitor result:{}", result);
 
         return result;

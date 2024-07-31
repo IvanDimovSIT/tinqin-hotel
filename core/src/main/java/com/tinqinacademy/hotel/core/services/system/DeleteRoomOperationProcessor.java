@@ -4,6 +4,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Room;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import java.util.logging.ErrorManager;
 
 import static io.vavr.API.*;
 import static io.vavr.Predicates.instanceOf;
@@ -28,6 +30,7 @@ import static io.vavr.Predicates.instanceOf;
 public class DeleteRoomOperationProcessor implements DeleteRoomOperation {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final ErrorMapper errorMapper;
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -56,20 +59,7 @@ public class DeleteRoomOperationProcessor implements DeleteRoomOperation {
                             .build();
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(instanceOf(DeleteRoomException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End deleteRoom result:{}", result);
 

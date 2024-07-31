@@ -4,6 +4,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Room;
@@ -33,6 +34,7 @@ public class GetRoomOperationProcessor implements GetRoomOperation {
     private final ConversionService conversionService;
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final ErrorMapper errorMapper;
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -68,16 +70,7 @@ public class GetRoomOperationProcessor implements GetRoomOperation {
                     return output;
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End getRoom result:{}", result);
 

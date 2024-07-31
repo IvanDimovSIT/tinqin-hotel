@@ -9,6 +9,7 @@ import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
@@ -40,6 +41,7 @@ public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOpe
     private final BedRepository bedRepository;
     private final ObjectMapper objectMapper;
     private final ConversionService conversionService;
+    private final ErrorMapper errorMapper;
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -95,21 +97,7 @@ public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOpe
                     return conversionService.convert(savedRoom, PartialUpdateRoomOutput.class);
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(instanceOf(PartialUpdateRoomException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
-                                .build()
-                        ),
-
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End partialUpdateRoom result:{}", result);
 
