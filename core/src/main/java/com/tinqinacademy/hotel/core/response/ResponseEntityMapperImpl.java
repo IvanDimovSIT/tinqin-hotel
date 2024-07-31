@@ -20,6 +20,7 @@ public class ResponseEntityMapperImpl implements ResponseEntityMapper {
             result = new ResponseEntity<>(either.get(), status);
         }else{
             Errors errors = either.getLeft();
+            log.error(errors.toString());
             result = new ResponseEntity<>(errors.getErrorInfos(), errors.getStatus());
         }
 
