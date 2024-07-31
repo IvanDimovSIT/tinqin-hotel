@@ -1,40 +1,42 @@
-package com.tinqinacademy.hotel.core.services.hotel;
+package com.tinqinacademy.hotel.core.processors.hotel;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.BookRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.User;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
-import com.tinqinacademy.hotel.persistence.repository.UserRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class BookRoomOperationProcessor implements BookRoomOperation {
+public class BookRoomOperationProcessor extends BaseOperationProcessor implements BookRoomOperation {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
-    private final ConversionService conversionService;
+
+    public BookRoomOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper, Validator validator,
+                                      RoomRepository roomRepository, BookingRepository bookingRepository) {
+        super(conversionService, errorMapper, validator);
+        this.roomRepository = roomRepository;
+        this.bookingRepository = bookingRepository;
+    }
+
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id))
@@ -69,6 +71,7 @@ public class BookRoomOperationProcessor implements BookRoomOperation {
     public Either<Errors, BookRoomOutput> process(BookRoomInput input) {
         log.info("Start bookRoom input:{},", input);
         Either<Errors, BookRoomOutput> result = Try.of(() -> {
+                    validate(input);
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room, input.getStartDate(), input.getEndDate());
                     User user = convertInputToUser(input);
@@ -82,16 +85,7 @@ public class BookRoomOperationProcessor implements BookRoomOperation {
                     return bookRoomOutput;
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End bookRoom result:{}", result);
         return result;

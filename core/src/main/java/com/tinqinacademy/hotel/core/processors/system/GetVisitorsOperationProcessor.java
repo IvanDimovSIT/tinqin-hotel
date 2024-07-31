@@ -1,10 +1,12 @@
-package com.tinqinacademy.hotel.core.services.system;
+package com.tinqinacademy.hotel.core.processors.system;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.model.visitor.VisitorOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsInput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOutput;
 import com.tinqinacademy.hotel.api.operations.system.getvisitors.GetVisitorsOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.model.Room;
@@ -13,24 +15,25 @@ import io.vavr.control.Try;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.*;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
-    private final ConversionService conversionService;
+public class GetVisitorsOperationProcessor extends BaseOperationProcessor implements GetVisitorsOperation {
     private final EntityManager entityManager;
+
+    public GetVisitorsOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper,
+                                         Validator validator, EntityManager entityManager) {
+        super(conversionService, errorMapper, validator);
+        this.entityManager = entityManager;
+    }
+
 
     private <T> void addPredicateIfPresent(List<Predicate> predicates, Predicate predicate, T field) {
         if (field != null) {
@@ -96,6 +99,7 @@ public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
         log.info("Start getVisitors input:{}", input);
 
         Either<Errors, GetVisitorsOutput> result = Try.of(() -> {
+                    validate(input);
                     List<Tuple> results = findVisitors(input);
                     List<VisitorOutput> visitorOutputs = mapVisitors(results);
 
@@ -104,12 +108,7 @@ public class GetVisitorsOperationProcessor implements GetVisitorsOperation {
                             .build();
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End getVisitors result:{}", result);
 

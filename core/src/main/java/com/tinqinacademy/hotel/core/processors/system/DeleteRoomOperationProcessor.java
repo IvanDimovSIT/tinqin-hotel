@@ -1,33 +1,40 @@
-package com.tinqinacademy.hotel.core.services.system;
+package com.tinqinacademy.hotel.core.processors.system;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.deleteroom.DeleteRoomOperation;
+import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class DeleteRoomOperationProcessor implements DeleteRoomOperation {
+public class DeleteRoomOperationProcessor extends BaseOperationProcessor implements DeleteRoomOperation {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+
+    public DeleteRoomOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper,
+                                        Validator validator, RoomRepository roomRepository,
+                                        BookingRepository bookingRepository) {
+        super(conversionService, errorMapper, validator);
+        this.roomRepository = roomRepository;
+        this.bookingRepository = bookingRepository;
+    }
+
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -47,6 +54,7 @@ public class DeleteRoomOperationProcessor implements DeleteRoomOperation {
         log.info("Start deleteRoom input:{}", input);
 
         Either<Errors, DeleteRoomOutput> result = Try.of(() -> {
+                    validate(input);
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room);
 
@@ -56,20 +64,7 @@ public class DeleteRoomOperationProcessor implements DeleteRoomOperation {
                             .build();
                 })
                 .toEither()
-                .mapLeft(throwable -> Match(throwable).of(
-                        Case($(instanceOf(NotFoundException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.NOT_FOUND)
-                                .build()
-                        ),
-                        Case($(instanceOf(DeleteRoomException.class)), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
-                                .build()
-                        ),
-                        Case($(), Errors.builder()
-                                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
-                                .build()
-                        )
-                ));
+                .mapLeft(errorMapper::map);
 
         log.info("End deleteRoom result:{}", result);
 
