@@ -1,4 +1,4 @@
-package com.tinqinacademy.hotel.core.services.system;
+package com.tinqinacademy.hotel.core.processors.system;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,9 +10,9 @@ import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUp
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.DeleteRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
@@ -20,28 +20,31 @@ import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class PartialUpdateRoomOperationProcessor implements PartialUpdateRoomOperation {
+public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor implements PartialUpdateRoomOperation {
     private final RoomRepository roomRepository;
     private final BedRepository bedRepository;
     private final ObjectMapper objectMapper;
-    private final ConversionService conversionService;
-    private final ErrorMapper errorMapper;
+
+    public PartialUpdateRoomOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper,
+                                               Validator validator, RoomRepository roomRepository,
+                                               BedRepository bedRepository, ObjectMapper objectMapper) {
+        super(conversionService, errorMapper, validator);
+        this.roomRepository = roomRepository;
+        this.bedRepository = bedRepository;
+        this.objectMapper = objectMapper;
+    }
+
 
     private Room getRoom(String id) {
         return roomRepository.findById(UUID.fromString(id)).orElseThrow(

@@ -32,12 +32,11 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
-public class HotelController {
+public class HotelController extends BaseController {
     private final CheckAvailableRoomsOperation checkAvailableRoomsService;
     private final GetRoomOperation getRoomOperation;
     private final BookRoomOperation bookRoomService;
     private final UnbookRoomOperation unbookRoomOperation;
-    private final ResponseEntityMapper responseEntityMapper;
 
     @Operation(summary = "Checks whether a room is available for a certain period", description = "Checks whether a" +
             " room is available for a certain period. Room requirements should come as query parameters in URL.")
@@ -63,7 +62,7 @@ public class HotelController {
 
         Either<Errors, CheckAvailableRoomsOutput> output = checkAvailableRoomsService.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
 
@@ -81,7 +80,7 @@ public class HotelController {
                 .build();
 
         Either<Errors, GetRoomOutput> output = getRoomOperation.process(input);
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Books the room", description = "Books the room specified")
@@ -91,14 +90,14 @@ public class HotelController {
             @ApiResponse(responseCode = "404", description = "Room id not found"),
     })
     @PostMapping(RestApiRoutes.HOTEL_BOOK_ROOM)
-    public ResponseEntity<?> bookRoom(@PathVariable String roomId, @Valid @RequestBody BookRoomInput bookRoomInput) {
+    public ResponseEntity<?> bookRoom(@PathVariable String roomId, @RequestBody BookRoomInput bookRoomInput) {
         BookRoomInput input = bookRoomInput.toBuilder()
                 .id(roomId)
                 .build();
 
         Either<Errors, BookRoomOutput> output = bookRoomService.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.CREATED);
+        return mapToResponseEntity(output, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Unbooks a booked room", description = "Unbooks a room that the user has already" +
@@ -116,7 +115,7 @@ public class HotelController {
 
         Either<Errors, UnbookRoomOutput> output = unbookRoomOperation.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
 

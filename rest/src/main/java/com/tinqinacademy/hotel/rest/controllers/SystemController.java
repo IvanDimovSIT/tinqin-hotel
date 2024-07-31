@@ -21,6 +21,7 @@ import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOperation;
 import com.tinqinacademy.hotel.api.RestApiRoutes;
+import com.tinqinacademy.hotel.core.exception.BaseException;
 import com.tinqinacademy.hotel.core.response.ResponseEntityMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -37,14 +38,13 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
-public class SystemController {
+public class SystemController extends BaseController {
     private final RegisterVisitorOperation registerVisitorOperation;
     private final GetVisitorsOperation getVisitorsOperation;
     private final AddRoomOperation addRoomOperation;
     private final UpdateRoomOperation updateRoomOperation;
     private final PartialUpdateRoomOperation partialUpdateRoomOperation;
     private final DeleteRoomOperation deleteRoomOperation;
-    private final ResponseEntityMapper responseEntityMapper;
 
     @Operation(summary = "Registers a visitor as room renter", description = "Registers a visitor as room renter")
     @ApiResponses(value = {
@@ -53,10 +53,10 @@ public class SystemController {
             @ApiResponse(responseCode = "404", description = "Room id not found")
     })
     @PostMapping(RestApiRoutes.SYSTEM_REGISTER_VISITOR)
-    public ResponseEntity<?> registerVisitor(@Valid @RequestBody RegisterVisitorInput input) {
+    public ResponseEntity<?> registerVisitor(@RequestBody RegisterVisitorInput input) {
         Either<Errors, RegisterVisitorOutput> output = registerVisitorOperation.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Finds info on visitors", description = "Admin only. Provides a report based on" +
@@ -94,7 +94,7 @@ public class SystemController {
 
         Either<Errors, GetVisitorsOutput> output = getVisitorsOperation.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
 
@@ -105,10 +105,10 @@ public class SystemController {
             @ApiResponse(responseCode = "403", description = "Forbidden")
     })
     @PostMapping(RestApiRoutes.SYSTEM_ADD_ROOM)
-    public ResponseEntity<?> addRoom(@Valid @RequestBody AddRoomInput input) {
+    public ResponseEntity<?> addRoom(@RequestBody AddRoomInput input) {
         Either<Errors, AddRoomOutput> output = addRoomOperation.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.CREATED);
+        return mapToResponseEntity(output, HttpStatus.CREATED);
     }
 
     @Operation(summary = "Update room data", description = "Admin updates the info regarding a certain" +
@@ -119,14 +119,14 @@ public class SystemController {
             @ApiResponse(responseCode = "404", description = "Room id not found"),
     })
     @PutMapping(RestApiRoutes.SYSTEM_UPDATE_ROOM)
-    public ResponseEntity<?> updateRoom(@PathVariable String roomId, @Valid @RequestBody UpdateRoomInput input) {
+    public ResponseEntity<?> updateRoom(@PathVariable String roomId, @RequestBody UpdateRoomInput input) {
         UpdateRoomInput updateRoomInput = input.toBuilder()
                 .roomId(roomId)
                 .build();
 
         Either<Errors, UpdateRoomOutput> output = updateRoomOperation.process(updateRoomInput);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Admin partial update of room data", description = "Admin partial update of room data")
@@ -136,14 +136,14 @@ public class SystemController {
             @ApiResponse(responseCode = "404", description = "Room id not found"),
     })
     @PatchMapping(value = RestApiRoutes.SYSTEM_PARTIAL_UPDATE_ROOM, consumes = {"application/json-patch+json", "application/json"})
-    public ResponseEntity<?> partialUpdateRoom(@PathVariable String roomId, @Valid @RequestBody PartialUpdateRoomInput input) {
+    public ResponseEntity<?> partialUpdateRoom(@PathVariable String roomId, @RequestBody PartialUpdateRoomInput input) {
         PartialUpdateRoomInput partialUpdateRoomInput = input.toBuilder()
                 .roomId(roomId)
                 .build();
 
         Either<Errors, PartialUpdateRoomOutput> output = partialUpdateRoomOperation.process(partialUpdateRoomInput);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 
     @Operation(summary = "Deletes a room", description = "Deletes a room" +
@@ -161,6 +161,6 @@ public class SystemController {
 
         Either<Errors, DeleteRoomOutput> output = deleteRoomOperation.process(input);
 
-        return responseEntityMapper.mapToResponseEntity(output, HttpStatus.OK);
+        return mapToResponseEntity(output, HttpStatus.OK);
     }
 }

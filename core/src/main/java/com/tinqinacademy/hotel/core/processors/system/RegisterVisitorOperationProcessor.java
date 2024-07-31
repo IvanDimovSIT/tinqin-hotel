@@ -1,4 +1,4 @@
-package com.tinqinacademy.hotel.core.services.system;
+package com.tinqinacademy.hotel.core.processors.system;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.model.visitor.VisitorInput;
@@ -7,34 +7,37 @@ import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVis
 import com.tinqinacademy.hotel.api.operations.system.registervisitor.RegisterVisitorOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
-import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.core.exception.exceptions.RegisterVisitorException;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Guest;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.GuestRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class RegisterVisitorOperationProcessor implements RegisterVisitorOperation {
+public class RegisterVisitorOperationProcessor extends BaseOperationProcessor implements RegisterVisitorOperation {
     private final BookingRepository bookingRepository;
     private final GuestRepository guestRepository;
-    private final ConversionService conversionService;
-    private final ErrorMapper errorMapper;
+
+    public RegisterVisitorOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper,
+                                             Validator validator, BookingRepository bookingRepository,
+                                             GuestRepository guestRepository) {
+        super(conversionService, errorMapper, validator);
+        this.bookingRepository = bookingRepository;
+        this.guestRepository = guestRepository;
+    }
+
 
     private boolean checkCardInvalid(VisitorInput visitor) {
         return !(visitor.getIdCardNumber() != null && visitor.getIdCardIssueDate() != null &&
@@ -76,6 +79,7 @@ public class RegisterVisitorOperationProcessor implements RegisterVisitorOperati
         log.info("Start registerVisitor input:{}", input);
 
         Either<Errors, RegisterVisitorOutput> result = Try.of(() -> {
+                    validate(input);
                     List<Guest> guests = input.getVisitorInputs().stream()
                             .map(this::saveVisitor)
                             .toList();

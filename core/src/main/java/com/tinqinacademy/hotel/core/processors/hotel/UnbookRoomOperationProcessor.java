@@ -1,4 +1,4 @@
-package com.tinqinacademy.hotel.core.services.hotel;
+package com.tinqinacademy.hotel.core.processors.hotel;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
@@ -6,26 +6,29 @@ import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class UnbookRoomOperationProcessor implements UnbookRoomOperation {
+public class UnbookRoomOperationProcessor extends BaseOperationProcessor implements UnbookRoomOperation {
     private final BookingRepository bookingRepository;
-    private final ErrorMapper errorMapper;
+
+    public UnbookRoomOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper,
+                                        Validator validator, BookingRepository bookingRepository) {
+        super(conversionService, errorMapper, validator);
+        this.bookingRepository = bookingRepository;
+    }
+
 
     private Booking getBooking(String id) {
         return bookingRepository.findById(UUID.fromString(id)).orElseThrow(
@@ -38,6 +41,7 @@ public class UnbookRoomOperationProcessor implements UnbookRoomOperation {
         log.info("Start unbookRoom input:{}", input);
 
         Either<Errors, UnbookRoomOutput> result = Try.of(() -> {
+                    validate(input);
                     Booking booking = getBooking(input.getBookingId());
 
                     bookingRepository.delete(booking);

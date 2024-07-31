@@ -1,35 +1,35 @@
-package com.tinqinacademy.hotel.core.services.hotel;
+package com.tinqinacademy.hotel.core.processors.hotel;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsInput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
-import lombok.RequiredArgsConstructor;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-import static io.vavr.API.*;
-import static io.vavr.Predicates.instanceOf;
-
 @Service
 @Slf4j
-@RequiredArgsConstructor
-public class CheckAvailableRoomsOperationProcessor implements CheckAvailableRoomsOperation {
+public class CheckAvailableRoomsOperationProcessor extends BaseOperationProcessor implements CheckAvailableRoomsOperation {
     private final RoomRepository roomRepository;
-    private final ConversionService conversionService;
-    private final ErrorMapper errorMapper;
+
+    public CheckAvailableRoomsOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper,
+                                                 Validator validator, RoomRepository roomRepository) {
+        super(conversionService, errorMapper, validator);
+        this.roomRepository = roomRepository;
+    }
+
 
     private BathroomType getBathroomTypeCriteria(CheckAvailableRoomsInput input) {
         return input.getBathroomType() == null ? null :
