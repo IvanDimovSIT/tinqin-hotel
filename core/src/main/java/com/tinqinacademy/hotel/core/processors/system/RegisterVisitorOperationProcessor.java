@@ -76,9 +76,8 @@ public class RegisterVisitorOperationProcessor extends BaseOperationProcessor im
 
     @Override
     public Either<Errors, RegisterVisitorOutput> process(RegisterVisitorInput input) {
-        log.info("Start registerVisitor input:{}", input);
-
-        Either<Errors, RegisterVisitorOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start registerVisitor input:{}", input);
                     validate(input);
                     List<Guest> guests = input.getVisitorInputs().stream()
                             .map(this::saveVisitor)
@@ -86,13 +85,12 @@ public class RegisterVisitorOperationProcessor extends BaseOperationProcessor im
 
                     log.info("registerVisitor created guests:{}", guests);
 
-                    return RegisterVisitorOutput.builder()
+                    RegisterVisitorOutput result = RegisterVisitorOutput.builder()
                             .build();
+                    log.info("End registerVisitor result:{}", result);
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-        log.info("End registerVisitor result:{}", result);
-
-        return result;
     }
 }

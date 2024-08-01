@@ -73,8 +73,8 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
 
     @Override
     public Either<Errors, BookRoomOutput> process(BookRoomInput input) {
-        log.info("Start bookRoom input:{},", input);
-        Either<Errors, BookRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start bookRoom input:{},", input);
                     validate(input);
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room, input.getStartDate(), input.getEndDate());
@@ -87,13 +87,11 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
 
                     BookRoomOutput bookRoomOutput = BookRoomOutput.builder()
                             .build();
+                    log.info("End bookRoom result:{}", bookRoomOutput);
 
                     return bookRoomOutput;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End bookRoom result:{}", result);
-        return result;
     }
 }

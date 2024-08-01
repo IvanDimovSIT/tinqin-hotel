@@ -38,22 +38,20 @@ public class UnbookRoomOperationProcessor extends BaseOperationProcessor impleme
 
     @Override
     public Either<Errors, UnbookRoomOutput> process(UnbookRoomInput input) {
-        log.info("Start unbookRoom input:{}", input);
-
-        Either<Errors, UnbookRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start unbookRoom input:{}", input);
                     validate(input);
                     Booking booking = getBooking(input.getBookingId());
 
                     bookingRepository.delete(booking);
 
-                    return UnbookRoomOutput.builder()
+                    UnbookRoomOutput result= UnbookRoomOutput.builder()
                             .build();
+                    log.info("End unbookRoom result:{}", result);
+
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End unbookRoom result:{}", result);
-
-        return result;
     }
 }

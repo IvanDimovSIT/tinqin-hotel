@@ -58,9 +58,8 @@ public class GetRoomOperationProcessor extends BaseOperationProcessor implements
 
     @Override
     public Either<Errors, GetRoomOutput> process(GetRoomInput input) {
-        log.info("Start getRoom input:{}", input);
-
-        Either<Errors, GetRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start getRoom input:{}", input);
                     validate(input);
                     Room room = getRoom(input.getId());
 
@@ -70,13 +69,11 @@ public class GetRoomOperationProcessor extends BaseOperationProcessor implements
                     List<LocalDate> datesOccupied = findDatesOccupied(bookings);
 
                     output.setDatesOccupied(datesOccupied);
+                    log.info("End getRoom result:{}", output);
+
                     return output;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End getRoom result:{}", result);
-
-        return result;
     }
 }
