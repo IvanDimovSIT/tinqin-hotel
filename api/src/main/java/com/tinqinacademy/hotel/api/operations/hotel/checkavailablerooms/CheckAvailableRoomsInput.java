@@ -4,6 +4,8 @@ package com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms;
 import com.tinqinacademy.hotel.api.base.OperationInput;
 import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.model.enums.BedSize;
+import com.tinqinacademy.hotel.api.validation.bathroomtype.ValidBathroomType;
+import com.tinqinacademy.hotel.api.validation.bedsize.ValidBedSize;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +27,8 @@ public class CheckAvailableRoomsInput implements OperationInput {
     @Min(1)
     @Max(10)
     private Integer bedCount;
+    @ValidBedSize
     private BedSize bedSize;
+    @ValidBathroomType
     private BathroomType bathroomType;
 }

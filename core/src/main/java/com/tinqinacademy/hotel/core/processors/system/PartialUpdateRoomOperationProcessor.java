@@ -89,7 +89,7 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
                 Optional.of(BedSize.getCode(input.getBedSize().toString()));
 
         if (bedSize.isPresent() && bedSize.get() == BedSize.UNKNOWN) {
-            throw new InvalidBedSizeException(input.getBedSize().toString());
+            throw new InvalidBedSizeException();
         }
 
         return bedSize;
@@ -109,7 +109,7 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
 
                     Room newRoom = conversionService.convert(input, Room.class);
                     if(newRoom.getBathroomType() == BathroomType.UNKNOWN) {
-                        throw new InvalidBathroomTypeException(newRoom.getBathroomType().toString());
+                        throw new InvalidBathroomTypeException();
                     }
 
                     newRoom.setBeds(newBeds);

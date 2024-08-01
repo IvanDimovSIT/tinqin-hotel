@@ -64,7 +64,7 @@ public class AddRoomOperationProcessor extends BaseOperationProcessor implements
     private BedSize convertBedSize(AddRoomInput input) {
         BedSize bedSize = BedSize.getCode(input.getBedSize().toString());
         if (bedSize == BedSize.UNKNOWN) {
-            throw new InvalidBedSizeException(input.getBedSize().toString());
+            throw new InvalidBedSizeException();
         }
 
         return bedSize;
@@ -72,7 +72,7 @@ public class AddRoomOperationProcessor extends BaseOperationProcessor implements
 
     void validateBathroomType(AddRoomInput input) {
         if (input.getBathroomType() == BathroomType.UNKNOWN) {
-            throw new InvalidBathroomTypeException(input.getBathroomType().toString());
+            throw new InvalidBathroomTypeException();
         }
     }
 

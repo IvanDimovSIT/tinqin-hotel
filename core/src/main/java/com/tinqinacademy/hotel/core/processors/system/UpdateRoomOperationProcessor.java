@@ -56,7 +56,7 @@ public class UpdateRoomOperationProcessor extends BaseOperationProcessor impleme
     BedSize convertToBedSize(UpdateRoomInput input){
         BedSize bedSize = BedSize.getCode(input.getBedSize().toString());
         if(bedSize == BedSize.UNKNOWN){
-            throw new InvalidBedSizeException(bedSize.toString());
+            throw new InvalidBedSizeException();
         }
 
         return bedSize;
@@ -65,7 +65,7 @@ public class UpdateRoomOperationProcessor extends BaseOperationProcessor impleme
     BathroomType convertToBathroomType(UpdateRoomInput input){
         BathroomType bathroomType = BathroomType.getCode(input.getBathroomType().toString());
         if(bathroomType == BathroomType.UNKNOWN){
-            throw new InvalidBathroomTypeException(input.getBathroomType().toString());
+            throw new InvalidBathroomTypeException();
         }
 
         return bathroomType;
