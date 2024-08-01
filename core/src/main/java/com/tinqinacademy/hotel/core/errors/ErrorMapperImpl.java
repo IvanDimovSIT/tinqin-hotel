@@ -31,7 +31,7 @@ public class ErrorMapperImpl implements ErrorMapper {
 
     private Errors convertDefaultException(Throwable throwable) {
         return Errors.builder()
-                .error(throwable.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR)
+                .error(throwable.getMessage(), HttpStatus.BAD_REQUEST)
                 .build();
     }
 
