@@ -5,8 +5,6 @@ import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -54,21 +52,11 @@ public class UpdateRoomOperationProcessor extends BaseOperationProcessor impleme
     }
 
     BedSize convertToBedSize(UpdateRoomInput input){
-        BedSize bedSize = BedSize.getCode(input.getBedSize().toString());
-        if(bedSize == BedSize.UNKNOWN){
-            throw new InvalidBedSizeException();
-        }
-
-        return bedSize;
+        return BedSize.getCode(input.getBedSize().toString());
     }
 
     BathroomType convertToBathroomType(UpdateRoomInput input){
-        BathroomType bathroomType = BathroomType.getCode(input.getBathroomType().toString());
-        if(bathroomType == BathroomType.UNKNOWN){
-            throw new InvalidBathroomTypeException();
-        }
-
-        return bathroomType;
+        return BathroomType.getCode(input.getBathroomType().toString());
     }
 
     @Override

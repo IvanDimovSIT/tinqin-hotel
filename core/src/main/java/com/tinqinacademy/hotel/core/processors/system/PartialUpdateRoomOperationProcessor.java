@@ -10,8 +10,6 @@ import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUp
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
@@ -88,10 +86,6 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
         Optional<BedSize> bedSize = input.getBedSize() == null? Optional.empty():
                 Optional.of(BedSize.getCode(input.getBedSize().toString()));
 
-        if (bedSize.isPresent() && bedSize.get() == BedSize.UNKNOWN) {
-            throw new InvalidBedSizeException();
-        }
-
         return bedSize;
     }
 
@@ -108,12 +102,8 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
                             Optional.ofNullable(input.getBedCount()));
 
                     Room newRoom = conversionService.convert(input, Room.class);
-                    if(newRoom.getBathroomType() == BathroomType.UNKNOWN) {
-                        throw new InvalidBathroomTypeException();
-                    }
 
                     newRoom.setBeds(newBeds);
-
 
                     newRoom = patchRoom(currentRoom, newRoom);
 
