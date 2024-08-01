@@ -2,7 +2,7 @@ package com.tinqinacademy.hotel.api.operations.system.registervisitor;
 
 import com.tinqinacademy.hotel.api.base.OperationInput;
 import com.tinqinacademy.hotel.api.model.visitor.VisitorInput;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -16,5 +16,6 @@ import java.util.List;
 @Setter
 public class RegisterVisitorInput implements OperationInput {
     @NotNull
+    @Valid
     private List<VisitorInput> visitorInputs;
 }
