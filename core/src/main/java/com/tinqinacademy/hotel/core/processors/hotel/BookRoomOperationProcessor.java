@@ -13,6 +13,7 @@ import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.User;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
+import com.tinqinacademy.hotel.persistence.repository.UserRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import jakarta.validation.Validator;
@@ -29,12 +30,15 @@ import java.util.UUID;
 public class BookRoomOperationProcessor extends BaseOperationProcessor implements BookRoomOperation {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
 
     public BookRoomOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper, Validator validator,
-                                      RoomRepository roomRepository, BookingRepository bookingRepository) {
+                                      RoomRepository roomRepository, BookingRepository bookingRepository,
+                                      UserRepository userRepository) {
         super(conversionService, errorMapper, validator);
         this.roomRepository = roomRepository;
         this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -75,9 +79,10 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room, input.getStartDate(), input.getEndDate());
                     User user = convertInputToUser(input);
+                    User savedUser = userRepository.save(user);
                     Booking booking = convertInputToBooking(input);
                     Booking savedBooking = saveBookingWithRoomAndUser(
-                            booking, room, user, input.getStartDate(), input.getEndDate());
+                            booking, room, savedUser, input.getStartDate(), input.getEndDate());
                     log.info("process saved booking:{},", savedBooking);
 
                     BookRoomOutput bookRoomOutput = BookRoomOutput.builder()

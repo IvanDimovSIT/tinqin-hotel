@@ -22,12 +22,9 @@ public class CheckAvailableRoomsInput implements OperationInput {
     private LocalDate startDate;
     @NotNull
     private LocalDate endDate;
-    @NotNull
     @Min(1)
     @Max(10)
     private Integer bedCount;
-    @NotNull
     private BedSize bedSize;
-    @NotNull
     private BathroomType bathroomType;
 }
