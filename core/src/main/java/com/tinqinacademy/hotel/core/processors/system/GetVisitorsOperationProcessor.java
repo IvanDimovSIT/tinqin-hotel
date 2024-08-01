@@ -96,22 +96,20 @@ public class GetVisitorsOperationProcessor extends BaseOperationProcessor implem
 
     @Override
     public Either<Errors, GetVisitorsOutput> process(GetVisitorsInput input) {
-        log.info("Start getVisitors input:{}", input);
-
-        Either<Errors, GetVisitorsOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start getVisitors input:{}", input);
                     validate(input);
                     List<Tuple> results = findVisitors(input);
                     List<VisitorOutput> visitorOutputs = mapVisitors(results);
 
-                    return GetVisitorsOutput.builder()
+                    GetVisitorsOutput result = GetVisitorsOutput.builder()
                             .visitorOutputs(visitorOutputs)
                             .build();
+                    log.info("End getVisitors result:{}", result);
+
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End getVisitors result:{}", result);
-
-        return result;
     }
 }

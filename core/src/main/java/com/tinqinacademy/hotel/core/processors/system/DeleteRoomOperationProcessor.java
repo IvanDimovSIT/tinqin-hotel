@@ -51,23 +51,21 @@ public class DeleteRoomOperationProcessor extends BaseOperationProcessor impleme
 
     @Override
     public Either<Errors, DeleteRoomOutput> process(DeleteRoomInput input) {
-        log.info("Start deleteRoom input:{}", input);
-
-        Either<Errors, DeleteRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start deleteRoom input:{}", input);
                     validate(input);
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room);
 
                     roomRepository.delete(room);
 
-                    return DeleteRoomOutput.builder()
+                    DeleteRoomOutput result = DeleteRoomOutput.builder()
                             .build();
+                    log.info("End deleteRoom result:{}", result);
+
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End deleteRoom result:{}", result);
-
-        return result;
     }
 }

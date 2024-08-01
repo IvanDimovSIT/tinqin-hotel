@@ -1,11 +1,14 @@
 package com.tinqinacademy.hotel.core.processors.system;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
+import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -39,7 +42,7 @@ public class AddRoomOperationProcessor extends BaseOperationProcessor implements
     }
 
 
-    private List<Bed> findBedsToAdd(BedSize bedSize, Integer bedCount){
+    private List<Bed> findBedsToAdd(BedSize bedSize, Integer bedCount) {
         Optional<Bed> bed = bedRepository.findByBedSize(bedSize);
         if (bed.isEmpty()) {
             throw new NotFoundException("Beds with type " + bedSize + " not found");
@@ -58,27 +61,40 @@ public class AddRoomOperationProcessor extends BaseOperationProcessor implements
         }
     }
 
+    private BedSize convertBedSize(AddRoomInput input) {
+        BedSize bedSize = BedSize.getCode(input.getBedSize().toString());
+        if (bedSize == BedSize.UNKNOWN) {
+            throw new InvalidBedSizeException(input.getBedSize().toString());
+        }
+
+        return bedSize;
+    }
+
+    void validateBathroomType(AddRoomInput input) {
+        if (input.getBathroomType() == BathroomType.UNKNOWN) {
+            throw new InvalidBathroomTypeException(input.getBathroomType().toString());
+        }
+    }
+
     @Override
     public Either<Errors, AddRoomOutput> process(AddRoomInput input) {
-        log.info("Start addRoom input:{}", input);
-
-        Either<Errors, AddRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start addRoom input:{}", input);
                     validate(input);
+                    validateBathroomType(input);
                     checkRoomWithNumberExists(input);
 
-                    List<Bed> bedsToAdd = findBedsToAdd(BedSize.getCode(input.getBedSize().toString()), input.getBedCount());
+                    List<Bed> bedsToAdd = findBedsToAdd(convertBedSize(input), input.getBedCount());
 
                     Room room = conversionService.convert(input, Room.class);
                     room.setBeds(bedsToAdd);
 
                     room = roomRepository.save(room);
-
-                    return conversionService.convert(room, AddRoomOutput.class);
+                    AddRoomOutput result = conversionService.convert(room, AddRoomOutput.class);
+                    log.info("End addRoom result:{}", result);
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-        log.info("End addRoom result:{}", result);
-
-        return result;
     }
 }

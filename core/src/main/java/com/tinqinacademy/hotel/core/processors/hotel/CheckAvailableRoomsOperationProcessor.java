@@ -5,6 +5,8 @@ import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAva
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
@@ -32,22 +34,33 @@ public class CheckAvailableRoomsOperationProcessor extends BaseOperationProcesso
 
 
     private BathroomType getBathroomTypeCriteria(CheckAvailableRoomsInput input) {
-        return input.getBathroomType() == null ? null :
-                com.tinqinacademy.hotel.persistence.model.enums.BathroomType
+        BathroomType bathroomType = input.getBathroomType() == null ? null :
+                BathroomType
                         .getCode(input.getBathroomType().toString());
+
+        if(bathroomType == BathroomType.UNKNOWN) {
+            throw new InvalidBathroomTypeException(input.getBathroomType().toString());
+        }
+
+        return bathroomType;
     }
 
     private BedSize getBedSizeCriteria(CheckAvailableRoomsInput input) {
-        return input.getBedSize() == null ? null :
-                com.tinqinacademy.hotel.persistence.model.enums.BedSize
+        BedSize bedSize = input.getBedSize() == null ? null :
+                BedSize
                         .getCode(input.getBedSize().toString());
+
+        if(bedSize == BedSize.UNKNOWN) {
+            throw new InvalidBedSizeException(bedSize.toString());
+        }
+
+        return bedSize;
     }
 
     @Override
     public Either<Errors, CheckAvailableRoomsOutput> process(CheckAvailableRoomsInput input) {
-        log.info("Start checkAvailableRooms input:{}", input);
-
-        Either<Errors, CheckAvailableRoomsOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start checkAvailableRooms input:{}", input);
                     validate(input);
                     BathroomType bathroomTypeCriteria = getBathroomTypeCriteria(input);
                     BedSize bedSizeCriteria = getBedSizeCriteria(input);
@@ -59,12 +72,11 @@ public class CheckAvailableRoomsOperationProcessor extends BaseOperationProcesso
                             bedSizeCriteria,
                             input.getBedCount());
 
-                    return conversionService.convert(rooms, CheckAvailableRoomsOutput.class);
+                    CheckAvailableRoomsOutput result = conversionService.convert(rooms, CheckAvailableRoomsOutput.class);
+                    log.info("End checkAvailableRooms result:{}", result);
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-        log.info("End checkAvailableRooms result:{}", result);
-
-        return result;
     }
 }

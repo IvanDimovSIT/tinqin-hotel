@@ -10,11 +10,14 @@ import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUp
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Room;
+import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
@@ -81,21 +84,34 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
         }
     }
 
+    private Optional<BedSize> convertToBedSize(PartialUpdateRoomInput input) {
+        Optional<BedSize> bedSize = input.getBedSize() == null? Optional.empty():
+                Optional.of(BedSize.getCode(input.getBedSize().toString()));
+
+        if (bedSize.isPresent() && bedSize.get() == BedSize.UNKNOWN) {
+            throw new InvalidBedSizeException(input.getBedSize().toString());
+        }
+
+        return bedSize;
+    }
+
     @Override
     public Either<Errors, PartialUpdateRoomOutput> process(PartialUpdateRoomInput input) {
-        log.info("Start partialUpdateRoom input:{}", input);
-
-        Either<Errors, PartialUpdateRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start partialUpdateRoom input:{}", input);
                     validate(input);
                     Room currentRoom = getRoom(input.getRoomId());
 
                     List<Bed> newBeds = findBedsToAdd(
                             currentRoom,
-                            input.getBedSize() == null? Optional.empty():
-                                    Optional.of(BedSize.getCode(input.getBedSize().toString())),
+                            convertToBedSize(input),
                             Optional.ofNullable(input.getBedCount()));
 
                     Room newRoom = conversionService.convert(input, Room.class);
+                    if(newRoom.getBathroomType() == BathroomType.UNKNOWN) {
+                        throw new InvalidBathroomTypeException(newRoom.getBathroomType().toString());
+                    }
+
                     newRoom.setBeds(newBeds);
 
 
@@ -103,13 +119,11 @@ public class PartialUpdateRoomOperationProcessor extends BaseOperationProcessor 
 
                     Room savedRoom = roomRepository.save(newRoom);
 
-                    return conversionService.convert(savedRoom, PartialUpdateRoomOutput.class);
+                    PartialUpdateRoomOutput result = conversionService.convert(savedRoom, PartialUpdateRoomOutput.class);
+                    log.info("End partialUpdateRoom result:{}", result);
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End partialUpdateRoom result:{}", result);
-
-        return result;
     }
 }

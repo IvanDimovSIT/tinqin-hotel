@@ -16,6 +16,5 @@ import java.util.List;
 @Setter
 public class RegisterVisitorInput implements OperationInput {
     @NotNull
-    @Valid
-    private List<VisitorInput> visitorInputs;
+    private List<@Valid VisitorInput> visitorInputs;
 }

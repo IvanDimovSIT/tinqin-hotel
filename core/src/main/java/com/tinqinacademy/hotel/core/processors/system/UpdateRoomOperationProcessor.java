@@ -5,6 +5,8 @@ import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
+import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -51,31 +53,46 @@ public class UpdateRoomOperationProcessor extends BaseOperationProcessor impleme
         return beds;
     }
 
+    BedSize convertToBedSize(UpdateRoomInput input){
+        BedSize bedSize = BedSize.getCode(input.getBedSize().toString());
+        if(bedSize == BedSize.UNKNOWN){
+            throw new InvalidBedSizeException(bedSize.toString());
+        }
+
+        return bedSize;
+    }
+
+    BathroomType convertToBathroomType(UpdateRoomInput input){
+        BathroomType bathroomType = BathroomType.getCode(input.getBathroomType().toString());
+        if(bathroomType == BathroomType.UNKNOWN){
+            throw new InvalidBathroomTypeException(input.getBathroomType().toString());
+        }
+
+        return bathroomType;
+    }
+
     @Override
     public Either<Errors, UpdateRoomOutput> process(UpdateRoomInput input) {
-        log.info("Start updateRoom input:{}", input);
-
-        Either<Errors, UpdateRoomOutput> result = Try.of(() -> {
+        return Try.of(() -> {
+                    log.info("Start updateRoom input:{}", input);
                     validate(input);
                     Room room = getRoom(input.getRoomId());
 
-                    List<Bed> beds = findBedToAdd(BedSize.getCode(input.getBedSize().toString()), input.getBedCount());
+                    List<Bed> beds = findBedToAdd(convertToBedSize(input), input.getBedCount());
 
                     room.setRoomNo(input.getRoomNumber());
                     room.setPrice(input.getPrice());
                     room.setFloor(input.getFloor());
-                    room.setBathroomType(BathroomType.getCode(input.getBathroomType().toString()));
+                    room.setBathroomType(convertToBathroomType(input));
                     room.setBeds(beds);
 
                     room = roomRepository.save(room);
 
-                    return conversionService.convert(room, UpdateRoomOutput.class);
+                    UpdateRoomOutput result = conversionService.convert(room, UpdateRoomOutput.class);
+                    log.info("End updateRoom result:{}", result);
+                    return result;
                 })
                 .toEither()
                 .mapLeft(errorMapper::map);
-
-        log.info("End updateRoom result:{}", result);
-
-        return result;
     }
 }
