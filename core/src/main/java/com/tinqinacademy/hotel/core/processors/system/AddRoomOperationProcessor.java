@@ -7,8 +7,6 @@ import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
 import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
@@ -62,18 +60,7 @@ public class AddRoomOperationProcessor extends BaseOperationProcessor implements
     }
 
     private BedSize convertBedSize(AddRoomInput input) {
-        BedSize bedSize = BedSize.getCode(input.getBedSize().toString());
-        if (bedSize == BedSize.UNKNOWN) {
-            throw new InvalidBedSizeException();
-        }
-
-        return bedSize;
-    }
-
-    void validateBathroomType(AddRoomInput input) {
-        if (input.getBathroomType() == BathroomType.UNKNOWN) {
-            throw new InvalidBathroomTypeException();
-        }
+        return BedSize.getCode(input.getBedSize().toString());
     }
 
     @Override
@@ -81,7 +68,6 @@ public class AddRoomOperationProcessor extends BaseOperationProcessor implements
         return Try.of(() -> {
                     log.info("Start addRoom input:{}", input);
                     validate(input);
-                    validateBathroomType(input);
                     checkRoomWithNumberExists(input);
 
                     List<Bed> bedsToAdd = findBedsToAdd(convertBedSize(input), input.getBedCount());

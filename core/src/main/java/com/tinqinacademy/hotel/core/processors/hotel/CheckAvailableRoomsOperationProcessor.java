@@ -5,8 +5,6 @@ import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAva
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBathroomTypeException;
-import com.tinqinacademy.hotel.core.exception.exceptions.InvalidBedSizeException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Room;
 import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
@@ -34,27 +32,15 @@ public class CheckAvailableRoomsOperationProcessor extends BaseOperationProcesso
 
 
     private BathroomType getBathroomTypeCriteria(CheckAvailableRoomsInput input) {
-        BathroomType bathroomType = input.getBathroomType() == null ? null :
+        return input.getBathroomType() == null ? null :
                 BathroomType
                         .getCode(input.getBathroomType().toString());
-
-        if(bathroomType == BathroomType.UNKNOWN) {
-            throw new InvalidBathroomTypeException();
-        }
-
-        return bathroomType;
     }
 
     private BedSize getBedSizeCriteria(CheckAvailableRoomsInput input) {
-        BedSize bedSize = input.getBedSize() == null ? null :
+        return input.getBedSize() == null ? null :
                 BedSize
                         .getCode(input.getBedSize().toString());
-
-        if(bedSize == BedSize.UNKNOWN) {
-            throw new InvalidBedSizeException();
-        }
-
-        return bedSize;
     }
 
     @Override
