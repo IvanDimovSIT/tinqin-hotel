@@ -2,7 +2,7 @@ package com.tinqinacademy.hotel.core.errors;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
 import com.tinqinacademy.hotel.core.exception.BaseException;
-import jakarta.validation.ConstraintViolationException;
+import com.tinqinacademy.hotel.core.exception.exceptions.ViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +12,6 @@ import static io.vavr.Predicates.instanceOf;
 @Component
 public class ErrorMapperImpl implements ErrorMapper {
 
-    private Errors convertConstraintViolationException(Throwable throwable) {
-        ConstraintViolationException exception = (ConstraintViolationException) throwable;
-        Errors.ErrorsBuilder errors = Errors.builder();
-        exception.getConstraintViolations()
-                .forEach(violation -> errors.error(violation.getMessage(), HttpStatus.BAD_REQUEST));
-
-        return errors.build();
-    }
 
     private Errors convertExceptionHttpStatus(Throwable throwable) {
         BaseException exception = (BaseException) throwable;
@@ -35,11 +27,22 @@ public class ErrorMapperImpl implements ErrorMapper {
                 .build();
     }
 
+    private Errors convertViolationException(Throwable throwable) {
+        ViolationException exception = (ViolationException) throwable;
+
+        Errors.ErrorsBuilder errors = Errors.builder();
+        exception.getErrors()
+                .forEach(error -> errors.error(error, HttpStatus.BAD_REQUEST));
+
+        return errors.build();
+
+    }
+
     @Override
     public Errors map(Throwable throwable) {
         return Match(throwable).of(
-                Case($(instanceOf(ConstraintViolationException.class)),
-                        this::convertConstraintViolationException
+                Case($(instanceOf(ViolationException.class)),
+                        this::convertViolationException
                 ),
                 Case($(instanceOf(BaseException.class)),
                         this::convertExceptionHttpStatus
