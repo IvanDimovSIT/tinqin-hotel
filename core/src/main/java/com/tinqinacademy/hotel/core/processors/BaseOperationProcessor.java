@@ -24,7 +24,7 @@ public abstract class BaseOperationProcessor {
         Set<ConstraintViolation<T>> set = validator.validate(input);
         if (!set.isEmpty()) {
             List<String> error = set.stream()
-                    .map(violation -> String.format("%s : %s", violation.getInvalidValue(), violation.getMessage()))
+                    .map(violation -> String.format("%s : %s", violation.getPropertyPath(), violation.getMessage()))
                     .toList();
 
             throw new ViolationException(error);
