@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.tinqinacademy</groupId>
+    <groupId>com.tinqinacademy.hotel</groupId>
     <artifactId>hotel</artifactId>
     <version>${revision}</version>
     <name>hotel</name>
@@ -21,6 +21,7 @@
         <revision>0.0.1-SNAPSHOT</revision>
         <springdoc-openapi-starter-webmvc-ui-version>2.6.0</springdoc-openapi-starter-webmvc-ui-version>
         <jakarta.validation-api-version>3.1.0</jakarta.validation-api-version>
+        <flattenpomversion>1.2.7</flattenpomversion>
     </properties>
 
     <modules>
@@ -69,19 +70,15 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.2.7</version> <!-- Use the latest version -->
+                <version>${flattenpomversion}</version>
                 <executions>
                     <execution>
-                        <id>flatten</id>
-                        <phase>process-resources</phase>
                         <goals>
                             <goal>flatten</goal>
                         </goals>
+                        <phase>process-resources</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <!-- Configuration options -->
-                </configuration>
             </plugin>
         </plugins>
     </build>
