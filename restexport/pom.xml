@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.tinqinacademy.hotel</groupId>
+        <artifactId>hotel</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>restexport</artifactId>
+    <version>${revision}</version>
+    <name>restexport</name>
+    <description>hotel-restexport-module</description>
+
+
+    <dependencies>
+
+    </dependencies>
+
+
+</project>
