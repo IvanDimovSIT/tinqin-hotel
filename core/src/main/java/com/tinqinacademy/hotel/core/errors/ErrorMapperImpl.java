@@ -1,8 +1,8 @@
 package com.tinqinacademy.hotel.core.errors;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
-import com.tinqinacademy.hotel.core.exception.BaseException;
-import com.tinqinacademy.hotel.core.exception.exceptions.ViolationException;
+import com.tinqinacademy.hotel.api.exception.BaseException;
+import com.tinqinacademy.hotel.api.exception.exceptions.ViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
