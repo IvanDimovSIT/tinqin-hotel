@@ -1,7 +1,7 @@
-package com.tinqinacademy.hotel.core.exception.exceptions;
+package com.tinqinacademy.hotel.api.exception.exceptions;
 
 
-import com.tinqinacademy.hotel.core.exception.BaseException;
+import com.tinqinacademy.hotel.api.exception.BaseException;
 import org.springframework.http.HttpStatus;
 
 public class NotFoundException extends BaseException {

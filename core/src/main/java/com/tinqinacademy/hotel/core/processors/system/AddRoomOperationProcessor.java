@@ -1,13 +1,12 @@
 package com.tinqinacademy.hotel.core.processors.system;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
-import com.tinqinacademy.hotel.api.model.enums.BathroomType;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.CreateRoomException;
-import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.api.exception.exceptions.CreateRoomException;
+import com.tinqinacademy.hotel.api.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Room;

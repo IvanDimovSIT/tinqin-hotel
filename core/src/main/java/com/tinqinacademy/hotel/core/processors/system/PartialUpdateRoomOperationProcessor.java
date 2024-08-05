@@ -10,12 +10,11 @@ import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUp
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.partialupdateroom.PartialUpdateRoomOperation;
 import com.tinqinacademy.hotel.core.errors.ErrorMapper;
-import com.tinqinacademy.hotel.core.exception.exceptions.NotFoundException;
-import com.tinqinacademy.hotel.core.exception.exceptions.PartialUpdateRoomException;
+import com.tinqinacademy.hotel.api.exception.exceptions.NotFoundException;
+import com.tinqinacademy.hotel.api.exception.exceptions.PartialUpdateRoomException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Bed;
 import com.tinqinacademy.hotel.persistence.model.Room;
-import com.tinqinacademy.hotel.persistence.model.enums.BathroomType;
 import com.tinqinacademy.hotel.persistence.model.enums.BedSize;
 import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
