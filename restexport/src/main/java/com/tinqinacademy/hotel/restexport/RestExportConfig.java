@@ -11,4 +11,5 @@ public class RestExportConfig {
     public Contract feignContract() {
         return new feign.Contract.Default();
     }
+
 }
