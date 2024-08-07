@@ -15,7 +15,11 @@
 
 
     <dependencies>
-
+        <dependency>
+            <groupId>com.tinqinacademy.hotel</groupId>
+            <artifactId>api</artifactId>
+            <version>${revision}</version>
+        </dependency>
     </dependencies>
 
 
