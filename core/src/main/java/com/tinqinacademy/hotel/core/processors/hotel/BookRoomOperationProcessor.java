@@ -10,10 +10,8 @@ import com.tinqinacademy.hotel.api.exception.exceptions.NotFoundException;
 import com.tinqinacademy.hotel.core.processors.BaseOperationProcessor;
 import com.tinqinacademy.hotel.persistence.model.Booking;
 import com.tinqinacademy.hotel.persistence.model.Room;
-import com.tinqinacademy.hotel.persistence.model.User;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
-import com.tinqinacademy.hotel.persistence.repository.UserRepository;
 import io.vavr.control.Either;
 import io.vavr.control.Try;
 import jakarta.validation.Validator;
@@ -30,15 +28,12 @@ import java.util.UUID;
 public class BookRoomOperationProcessor extends BaseOperationProcessor implements BookRoomOperation {
     private final RoomRepository roomRepository;
     private final BookingRepository bookingRepository;
-    private final UserRepository userRepository;
 
     public BookRoomOperationProcessor(ConversionService conversionService, ErrorMapper errorMapper, Validator validator,
-                                      RoomRepository roomRepository, BookingRepository bookingRepository,
-                                      UserRepository userRepository) {
+                                      RoomRepository roomRepository, BookingRepository bookingRepository) {
         super(conversionService, errorMapper, validator);
         this.roomRepository = roomRepository;
         this.bookingRepository = bookingRepository;
-        this.userRepository = userRepository;
     }
 
 
@@ -54,16 +49,13 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
         }
     }
 
-    private User convertInputToUser(BookRoomInput bookRoomInput) {
-        return conversionService.convert(bookRoomInput, User.class);
-    }
 
     private Booking convertInputToBooking(BookRoomInput bookRoomInput) {
         return conversionService.convert(bookRoomInput, Booking.class);
     }
 
-    private Booking saveBookingWithRoomAndUser(Booking booking, Room room, User user, LocalDate startDate, LocalDate endDate) {
-        booking.setUser(user);
+    private Booking saveBookingWithRoomAndUser(Booking booking, Room room, UUID userId, LocalDate startDate, LocalDate endDate) {
+        booking.setUserId(userId);
         booking.setRoom(room);
         booking.setTotalPrice(room.getPrice().multiply(BigDecimal.valueOf(endDate.toEpochDay() -
                 startDate.toEpochDay())));
@@ -78,11 +70,10 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
                     validate(input);
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room, input.getStartDate(), input.getEndDate());
-                    User user = convertInputToUser(input);
-                    User savedUser = userRepository.save(user);
+
                     Booking booking = convertInputToBooking(input);
                     Booking savedBooking = saveBookingWithRoomAndUser(
-                            booking, room, savedUser, input.getStartDate(), input.getEndDate());
+                            booking, room, UUID.fromString(input.getUserId()), input.getStartDate(), input.getEndDate());
                     log.info("process saved booking:{},", savedBooking);
 
                     BookRoomOutput bookRoomOutput = BookRoomOutput.builder()

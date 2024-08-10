@@ -59,7 +59,7 @@ public interface HotelRestExport {
 
 
     @RequestLine("GET /api/v1/system/register?startDate={startDate}&endDate={endDate}&firstName={firstName}&" +
-            "lastName={lastName}&phoneNumber={phoneNumber}&idCardNumber={idCardNumber}&idCardValidity={idCardValidity}" +
+            "lastName={lastName}&phoneNumber={phoneNumber}&idCardNumber={idCardNumber}&idCardValidity={idCardValidity}&" +
             "idCardIssueAuthority={idCardIssueAuthority}&idCardIssueDate={idCardIssueDate}&roomNumber={roomNumber}")
     //@GetMapping(RestApiRoutes.SYSTEM_GET_VISITORS)
     /*ResponseEntity<?>*/GetVisitorsOutput getVisitors(
