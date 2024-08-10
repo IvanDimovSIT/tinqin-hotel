@@ -64,9 +64,9 @@ public class RegisterVisitorOperationProcessor extends BaseOperationProcessor im
             throw new RegisterVisitorException("Error registering visitor: invalid id information");
         }
 
+        Booking booking = findBookingForVisitor(visitor);
         Guest guest = conversionService.convert(visitor, Guest.class);
         guest = guestRepository.save(guest);
-        Booking booking = findBookingForVisitor(visitor);
         booking.getGuests().add(guest);
         bookingRepository.save(booking);
 
