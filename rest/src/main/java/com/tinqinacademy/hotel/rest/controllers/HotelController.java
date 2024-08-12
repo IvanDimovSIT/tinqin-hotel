@@ -31,9 +31,9 @@ import java.time.LocalDate;
 @RequestMapping
 @RequiredArgsConstructor
 public class HotelController extends BaseController {
-    private final CheckAvailableRoomsOperation checkAvailableRoomsService;
+    private final CheckAvailableRoomsOperation checkAvailableRoomsOperation;
     private final GetRoomOperation getRoomOperation;
-    private final BookRoomOperation bookRoomService;
+    private final BookRoomOperation bookRoomOperation;
     private final UnbookRoomOperation unbookRoomOperation;
 
     @Operation(summary = "Checks whether a room is available for a certain period", description = "Checks whether a" +
@@ -58,7 +58,7 @@ public class HotelController extends BaseController {
                 .build();
 
 
-        Either<Errors, CheckAvailableRoomsOutput> output = checkAvailableRoomsService.process(input);
+        Either<Errors, CheckAvailableRoomsOutput> output = checkAvailableRoomsOperation.process(input);
 
         return mapToResponseEntity(output, HttpStatus.OK);
     }
@@ -93,7 +93,7 @@ public class HotelController extends BaseController {
                 .id(roomId)
                 .build();
 
-        Either<Errors, BookRoomOutput> output = bookRoomService.process(input);
+        Either<Errors, BookRoomOutput> output = bookRoomOperation.process(input);
 
         return mapToResponseEntity(output, HttpStatus.CREATED);
     }

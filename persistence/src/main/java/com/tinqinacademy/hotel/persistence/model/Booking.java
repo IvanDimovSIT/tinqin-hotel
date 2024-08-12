@@ -28,10 +28,8 @@ public class Booking {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User user;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "room_id", nullable = true)
