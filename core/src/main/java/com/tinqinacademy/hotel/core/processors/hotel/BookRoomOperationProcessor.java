@@ -63,11 +63,21 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
         return bookingRepository.save(booking);
     }
 
+    private void checkBookingDatesValid(BookRoomInput input) {
+        if(input.getStartDate().isAfter(input.getEndDate())) {
+            throw new BookRoomException("Start date must be after end date");
+        }
+        if(input.getStartDate().isBefore(LocalDate.now())) {
+            throw new BookRoomException("Start date must be after today's date");
+        }
+    }
+
     @Override
     public Either<Errors, BookRoomOutput> process(BookRoomInput input) {
         return Try.of(() -> {
                     log.info("Start bookRoom input:{},", input);
                     validate(input);
+                    checkBookingDatesValid(input);
                     Room room = getRoom(input.getId());
                     checkRoomOccupied(room, input.getStartDate(), input.getEndDate());
 

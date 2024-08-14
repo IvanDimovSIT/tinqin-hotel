@@ -9,10 +9,7 @@ import com.tinqinacademy.hotel.api.validation.bedsize.ValidBedSize;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
-import javax.swing.text.html.Option;
-import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Optional;
 
 @AllArgsConstructor
 @NoArgsConstructor

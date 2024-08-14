@@ -1,7 +1,6 @@
 package com.tinqinacademy.hotel.api.operations.system.addroom;
 
 import com.tinqinacademy.hotel.api.base.OperationOutput;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 
 @AllArgsConstructor

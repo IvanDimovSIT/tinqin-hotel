@@ -1,7 +1,6 @@
 package com.tinqinacademy.hotel.api.operations.system.deleteroom;
 
 import com.tinqinacademy.hotel.api.base.OperationInput;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 

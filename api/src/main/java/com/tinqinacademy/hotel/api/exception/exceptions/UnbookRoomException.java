@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public class UnbookRoomException extends BaseException {
 
-    public UnbookRoomException() {
-        super("User doesn't own the booking", HttpStatus.FORBIDDEN);
+    public UnbookRoomException(String message) {
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

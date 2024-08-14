@@ -1,7 +1,6 @@
 package com.tinqinacademy.hotel.restexport;
 
 
-import com.tinqinacademy.hotel.api.RestApiRoutes;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
@@ -21,7 +20,6 @@ import com.tinqinacademy.hotel.api.operations.system.updateroom.UpdateRoomOutput
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
