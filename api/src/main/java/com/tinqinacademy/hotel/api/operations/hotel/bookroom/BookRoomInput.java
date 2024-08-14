@@ -2,10 +2,7 @@ package com.tinqinacademy.hotel.api.operations.hotel.bookroom;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.tinqinacademy.hotel.api.base.OperationInput;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;

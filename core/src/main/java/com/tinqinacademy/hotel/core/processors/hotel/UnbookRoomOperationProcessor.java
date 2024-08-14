@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Service
@@ -39,7 +40,13 @@ public class UnbookRoomOperationProcessor extends BaseOperationProcessor impleme
 
     private void checkUserCreatedBooking(Booking booking, String userId) {
         if (!booking.getUserId().toString().equals(userId)) {
-            throw new UnbookRoomException();
+            throw new UnbookRoomException("User doesn't own the booking");
+        }
+    }
+
+    private void checkBookingIsAfterToday(Booking booking) {
+        if(!booking.getStartDate().isAfter(LocalDate.now())){
+            throw new UnbookRoomException("Can only unbook a room that is booked for after today");
         }
     }
 
@@ -49,6 +56,7 @@ public class UnbookRoomOperationProcessor extends BaseOperationProcessor impleme
                     log.info("Start unbookRoom input:{}", input);
                     validate(input);
                     Booking booking = getBooking(input.getBookingId());
+                    checkBookingIsAfterToday(booking);
                     checkUserCreatedBooking(booking, input.getUserId());
 
                     bookingRepository.delete(booking);

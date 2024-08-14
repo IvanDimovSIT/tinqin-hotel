@@ -1,6 +1,5 @@
 package com.tinqinacademy.hotel.api.validation.bedsize;
 
-import com.tinqinacademy.hotel.api.validation.bathroomtype.ValidBathroomTypeValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
