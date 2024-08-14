@@ -6,6 +6,7 @@ import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.bookroom.BookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.checkavailablerooms.CheckAvailableRoomsOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.getroom.GetRoomOutput;
+import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomInput;
 import com.tinqinacademy.hotel.api.operations.system.addroom.AddRoomOutput;
@@ -50,7 +51,7 @@ public interface HotelRestExport {
 
     @RequestLine("DELETE /api/v1/hotel/{bookingId}")
     //@DeleteMapping(RestApiRoutes.HOTEL_UNBOOK_ROOM)
-    /*ResponseEntity<?>*/UnbookRoomOutput unbookRoom(@Param("bookingId") String bookingId);
+    /*ResponseEntity<?>*/UnbookRoomOutput unbookRoom(@Param("bookingId") String bookingId, @RequestBody UnbookRoomInput unbookRoomInput);
 
 
     @RequestLine("POST /api/v1/system/register")

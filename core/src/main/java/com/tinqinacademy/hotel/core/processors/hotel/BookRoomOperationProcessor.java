@@ -44,8 +44,8 @@ public class BookRoomOperationProcessor extends BaseOperationProcessor implement
 
     private void checkRoomOccupied(Room room, LocalDate startDate, LocalDate endDate) {
         if (bookingRepository.checkRoomOccupied(room.getId(), startDate, endDate)) {
-            throw new BookRoomException("Room with id:" + room.getId() + " occupied in the date range (" +
-                    endDate + " : " + startDate + ")");
+            throw new BookRoomException(String.format("Room with id: %s occupied in the date range (%s : %s)",
+                    room.getId(), endDate, startDate));
         }
     }
 

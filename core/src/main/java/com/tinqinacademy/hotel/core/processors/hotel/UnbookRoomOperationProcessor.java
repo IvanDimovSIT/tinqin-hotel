@@ -1,6 +1,7 @@
 package com.tinqinacademy.hotel.core.processors.hotel;
 
 import com.tinqinacademy.hotel.api.errors.Errors;
+import com.tinqinacademy.hotel.api.exception.exceptions.UnbookRoomException;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomInput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOutput;
 import com.tinqinacademy.hotel.api.operations.hotel.unbookroom.UnbookRoomOperation;
@@ -36,16 +37,23 @@ public class UnbookRoomOperationProcessor extends BaseOperationProcessor impleme
 
     }
 
+    private void checkUserCreatedBooking(Booking booking, String userId) {
+        if (!booking.getUserId().toString().equals(userId)) {
+            throw new UnbookRoomException();
+        }
+    }
+
     @Override
     public Either<Errors, UnbookRoomOutput> process(UnbookRoomInput input) {
         return Try.of(() -> {
                     log.info("Start unbookRoom input:{}", input);
                     validate(input);
                     Booking booking = getBooking(input.getBookingId());
+                    checkUserCreatedBooking(booking, input.getUserId());
 
                     bookingRepository.delete(booking);
 
-                    UnbookRoomOutput result= UnbookRoomOutput.builder()
+                    UnbookRoomOutput result = UnbookRoomOutput.builder()
                             .build();
                     log.info("End unbookRoom result:{}", result);
 

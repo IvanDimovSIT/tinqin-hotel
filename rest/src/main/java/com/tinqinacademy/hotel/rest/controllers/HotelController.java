@@ -53,8 +53,8 @@ public class HotelController extends BaseController {
                 .startDate(startDate)
                 .endDate(endDate)
                 .bedCount(bedCount)
-                .bedSize(bedSize ==null? null: BedSize.getCode(bedSize))
-                .bathroomType(bathroomType == null? null: BathroomType.getCode(bathroomType))
+                .bedSize(bedSize == null ? null : BedSize.getCode(bedSize))
+                .bathroomType(bathroomType == null ? null : BathroomType.getCode(bathroomType))
                 .build();
 
 
@@ -106,8 +106,8 @@ public class HotelController extends BaseController {
             @ApiResponse(responseCode = "404", description = "Booking id not found"),
     })
     @DeleteMapping(RestApiRoutes.HOTEL_UNBOOK_ROOM)
-    public ResponseEntity<?> unbookRoom(@PathVariable String bookingId) {
-        UnbookRoomInput input = UnbookRoomInput.builder()
+    public ResponseEntity<?> unbookRoom(@PathVariable String bookingId, @RequestBody UnbookRoomInput unbookRoomInput) {
+        UnbookRoomInput input = unbookRoomInput.toBuilder()
                 .bookingId(bookingId)
                 .build();
 
@@ -115,8 +115,6 @@ public class HotelController extends BaseController {
 
         return mapToResponseEntity(output, HttpStatus.OK);
     }
-
-
 
 
 }
