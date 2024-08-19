@@ -11,6 +11,75 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - mynetwork
+
+  hotel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hotel
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+  comments:
+    build:
+      context: ../comments
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/comments
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+  authentication:
+    build:
+      context: ../authentication
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/authentication
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+  bff:
+    build:
+      context: ../bff
+      dockerfile: Dockerfile
+    environment:
+      - hotel.url=http://hotel:8080
+      - comments.url=http://comments:8081
+      - authentication.url=http://authentication:8082
+    ports:
+      - "8083:8083"
+    depends_on:
+      - hotel
+      - comments
+      - authentication
+      - postgres
+    networks:
+      - mynetwork
 
 volumes:
   db:
+
+networks:
+  mynetwork:
+    driver: bridge
