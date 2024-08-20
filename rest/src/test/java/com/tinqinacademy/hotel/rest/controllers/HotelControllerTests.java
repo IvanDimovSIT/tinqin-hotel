@@ -54,15 +54,13 @@ public class HotelControllerTests {
     @Autowired
     private BookingRepository bookingRepository;
 
-    private Room room;
-    private Booking booking;
 
     @BeforeEach
     public void setup() {
 
         Bed bed = bedRepository.findByBedSize(BedSize.SINGLE).get();
 
-        room = Room.builder()
+        Room room = Room.builder()
                 .roomNo("123")
                 .bathroomType(BathroomType.SHARED)
                 .beds(List.of(bed))
@@ -72,7 +70,7 @@ public class HotelControllerTests {
 
         room = roomRepository.save(room);
 
-        booking = Booking.builder()
+        Booking booking = Booking.builder()
                 .startDate(LocalDate.of(2029, 9, 27))
                 .endDate(LocalDate.of(2029, 9, 29))
                 .room(room)
@@ -81,12 +79,11 @@ public class HotelControllerTests {
                 .guests(new HashSet<>())
                 .build();
 
-        booking = bookingRepository.save(booking);
-
+        bookingRepository.save(booking);
     }
 
     @AfterEach
-    public void clearDB(){
+    public void clearDB() {
         bookingRepository.deleteAll();
         roomRepository.deleteAll();
     }
@@ -114,6 +111,8 @@ public class HotelControllerTests {
 
     @Test
     public void testGetRoomOk() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         mvc.perform(get(RestApiRoutes.HOTEL_GET_ROOM, room.getId().toString())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
@@ -135,6 +134,8 @@ public class HotelControllerTests {
 
     @Test
     public void testBookRoomCreated() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         BookRoomInput input = BookRoomInput.builder()
                 .userId(UUID.randomUUID().toString())
                 .startDate(LocalDate.of(2029, 8, 20))
@@ -149,6 +150,8 @@ public class HotelControllerTests {
 
     @Test
     public void testBookRoomBadRequestBookingInThePast() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         BookRoomInput input = BookRoomInput.builder()
                 .userId(UUID.randomUUID().toString())
                 .startDate(LocalDate.of(2004, 8, 20))
@@ -163,6 +166,8 @@ public class HotelControllerTests {
 
     @Test
     public void testBookRoomAlreadyBooked() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
+
         BookRoomInput input = BookRoomInput.builder()
                 .userId(UUID.randomUUID().toString())
                 .startDate(booking.getStartDate())
@@ -205,6 +210,8 @@ public class HotelControllerTests {
 
     @Test
     public void testBookRoomBadRequestInvalidRequestBody() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         BookRoomInput input = BookRoomInput.builder()
                 .userId(UUID.randomUUID().toString())
                 .startDate(LocalDate.of(2029, 8, 20))
@@ -218,6 +225,8 @@ public class HotelControllerTests {
 
     @Test
     public void testUnbookRoomOk() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
+
         UnbookRoomInput input = UnbookRoomInput.builder()
                 .userId(booking.getUserId().toString())
                 .build();
@@ -230,6 +239,8 @@ public class HotelControllerTests {
 
     @Test
     public void testUnbookRoomBadRequestUserDoesntOwnBooking() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
+
         UnbookRoomInput input = UnbookRoomInput.builder()
                 .userId(UUID.randomUUID().toString())
                 .build();
@@ -242,6 +253,8 @@ public class HotelControllerTests {
 
     @Test
     public void testUnbookRoomBadRequestInvalidBody() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
+
         UnbookRoomInput input = UnbookRoomInput.builder()
                 .build();
 
@@ -253,6 +266,8 @@ public class HotelControllerTests {
 
     @Test
     public void testUnbookRoomBadRequestInvalidRoomId() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
+
         UnbookRoomInput input = UnbookRoomInput.builder()
                 .userId(booking.getUserId().toString())
                 .build();
@@ -265,6 +280,7 @@ public class HotelControllerTests {
 
     @Test
     public void testUnbookRoomNotFound() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
         UnbookRoomInput input = UnbookRoomInput.builder()
                 .userId(booking.getUserId().toString())
                 .build();

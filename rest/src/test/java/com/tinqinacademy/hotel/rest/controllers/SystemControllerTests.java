@@ -55,15 +55,12 @@ public class SystemControllerTests {
     @Autowired
     private BookingRepository bookingRepository;
 
-    private Room room;
-    private Booking booking;
-
     @BeforeEach
     public void setup() {
 
         Bed bed = bedRepository.findByBedSize(BedSize.SINGLE).get();
 
-        room = Room.builder()
+        Room room = Room.builder()
                 .roomNo("123")
                 .bathroomType(BathroomType.SHARED)
                 .beds(List.of(bed))
@@ -73,7 +70,7 @@ public class SystemControllerTests {
 
         room = roomRepository.save(room);
 
-        booking = Booking.builder()
+        Booking booking = Booking.builder()
                 .startDate(LocalDate.of(2029, 9, 27))
                 .endDate(LocalDate.of(2029, 9, 29))
                 .room(room)
@@ -82,18 +79,20 @@ public class SystemControllerTests {
                 .guests(new HashSet<>())
                 .build();
 
-        booking = bookingRepository.save(booking);
+        bookingRepository.save(booking);
 
     }
 
     @AfterEach
-    public void clearDB(){
+    public void clearDB() {
         roomRepository.deleteAll();
         bookingRepository.deleteAll();
     }
 
     @Test
     public void testRegisterVisitorOk() throws Exception {
+        Booking booking = bookingRepository.findAll().getFirst();
+
         VisitorInput visitorInput = VisitorInput.builder()
                 .firstName("Kolyo")
                 .lastName("Zafirov")
@@ -120,6 +119,8 @@ public class SystemControllerTests {
 
     @Test
     public void testRegisterVisitorBadRequest() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         VisitorInput visitorInput = VisitorInput.builder()
                 .firstName("Kolyo")
                 .lastName("Zafirov")
@@ -193,6 +194,8 @@ public class SystemControllerTests {
 
     @Test
     public void testUpdateRoomOk() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         UpdateRoomInput input = UpdateRoomInput.builder()
                 .roomId(room.getId().toString())
                 .bedCount(2)
@@ -229,6 +232,8 @@ public class SystemControllerTests {
 
     @Test
     public void testUpdateRoomBadRequestInvalidRequestBody() throws Exception {
+        Room room = roomRepository.findAll().getFirst();
+
         UpdateRoomInput input = UpdateRoomInput.builder()
                 .roomId(UUID.randomUUID().toString())
                 .bedCount(2)
@@ -258,7 +263,7 @@ public class SystemControllerTests {
                 .roomNumber("101")
                 .build();
 
-        mvc.perform(put(RestApiRoutes.SYSTEM_UPDATE_ROOM,"1236")
+        mvc.perform(put(RestApiRoutes.SYSTEM_UPDATE_ROOM, "1236")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(input)))
                 .andExpect(status().isBadRequest());
@@ -300,7 +305,7 @@ public class SystemControllerTests {
                 .floor(3)
                 .build();
 
-        roomToUpdate = roomRepository.save(roomToUpdate);
+        roomRepository.save(roomToUpdate);
 
         mvc.perform(patch(RestApiRoutes.SYSTEM_PARTIAL_UPDATE_ROOM, "123423")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -340,16 +345,6 @@ public class SystemControllerTests {
 
     @Test
     public void testDeleteRoomBadRequest() throws Exception {
-        Room roomToDelete = Room.builder()
-                .roomNo("456")
-                .bathroomType(BathroomType.SHARED)
-                .beds(List.of(bedRepository.findByBedSize(BedSize.SINGLE).get()))
-                .price(BigDecimal.valueOf(678.32))
-                .floor(3)
-                .build();
-
-        roomToDelete = roomRepository.save(roomToDelete);
-
         mvc.perform(delete(RestApiRoutes.SYSTEM_DELETE_ROOM, "123")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
