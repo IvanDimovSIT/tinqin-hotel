@@ -14,6 +14,7 @@ import com.tinqinacademy.hotel.persistence.repository.BedRepository;
 import com.tinqinacademy.hotel.persistence.repository.BookingRepository;
 import com.tinqinacademy.hotel.persistence.repository.GuestRepository;
 import com.tinqinacademy.hotel.persistence.repository.RoomRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY, connection = EmbeddedDatabaseConnection.H2)
-@Transactional
 public class HotelControllerTests {
     @Autowired
     private MockMvc mvc;
@@ -83,6 +83,12 @@ public class HotelControllerTests {
 
         booking = bookingRepository.save(booking);
 
+    }
+
+    @AfterEach
+    public void clearDB(){
+        bookingRepository.deleteAll();
+        roomRepository.deleteAll();
     }
 
     @Test

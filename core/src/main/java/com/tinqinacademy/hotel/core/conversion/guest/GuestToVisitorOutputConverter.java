@@ -6,20 +6,17 @@ import com.tinqinacademy.hotel.persistence.model.Guest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class GuestToVisitorOutputConverter extends BaseConverter<Guest, VisitorOutput> {
+public class GuestToVisitorOutputConverter extends BaseConverter<Guest, VisitorOutput.VisitorOutputBuilder> {
 
     @Override
-    protected VisitorOutput convertObject(Guest source) {
-        VisitorOutput visitorOutput = VisitorOutput.builder()
+    protected VisitorOutput.VisitorOutputBuilder convertObject(Guest source) {
+        return VisitorOutput.builder()
                 .firstName(source.getFirstName())
                 .lastName(source.getLastName())
                 .idCardNumber(source.getIdCardNo())
                 .idCardIssueDate(source.getIdCardIssueDate())
                 .idCardIssueAuthority(source.getIdCardIssueAuthority())
                 .idCardValidity(source.getIdCardValidity())
-                .phoneNumber(source.getPhoneNumber())
-                .build();
-
-        return visitorOutput;
+                .phoneNumber(source.getPhoneNumber());
     }
 }
