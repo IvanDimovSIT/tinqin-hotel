@@ -25,13 +25,11 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 
-//@FeignClient(name = "hotel")
 @Headers({"Content-Type: application/json"})
 public interface HotelRestExport {
 
     @RequestLine("GET /api/v1/hotel/rooms?startDate={startDate}&endDate={endDate}&bedCount={bedCount}&bedSize={bedSize}&bathroomType={bathroomType}")
-    //@GetMapping(RestApiRoutes.HOTEL_GET_AVAILABLE_ROOMS)
-    /*ResponseEntity<?>*/CheckAvailableRoomsOutput checkAvailableRooms(
+    CheckAvailableRoomsOutput checkAvailableRooms(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("bedCount") Integer bedCount,
@@ -39,29 +37,22 @@ public interface HotelRestExport {
             @Param("bathroomType") String bathroomType);
 
     @RequestLine("GET /api/v1/hotel/{roomId}")
-    //@GetMapping(RestApiRoutes.HOTEL_GET_ROOM)
-    /*ResponseEntity<?>*/GetRoomOutput getRoom(@Param("roomId") String roomId);
+    GetRoomOutput getRoom(@Param("roomId") String roomId);
 
     @RequestLine("POST /api/v1/hotel/{roomId}")
-    //@PostMapping(RestApiRoutes.HOTEL_BOOK_ROOM)
-    /*ResponseEntity<?>*/BookRoomOutput bookRoom(@Param("roomId") String roomId, @RequestBody BookRoomInput bookRoomInput);
-
+    BookRoomOutput bookRoom(@Param("roomId") String roomId, @RequestBody BookRoomInput bookRoomInput);
 
     @RequestLine("DELETE /api/v1/hotel/{bookingId}")
-    //@DeleteMapping(RestApiRoutes.HOTEL_UNBOOK_ROOM)
-    /*ResponseEntity<?>*/UnbookRoomOutput unbookRoom(@Param("bookingId") String bookingId, @RequestBody UnbookRoomInput unbookRoomInput);
-
+    UnbookRoomOutput unbookRoom(@Param("bookingId") String bookingId, @RequestBody UnbookRoomInput unbookRoomInput);
 
     @RequestLine("POST /api/v1/system/register")
-    //@PostMapping(RestApiRoutes.SYSTEM_REGISTER_VISITOR)
-    /*ResponseEntity<?>*/RegisterVisitorOutput registerVisitor(@RequestBody RegisterVisitorInput input);
+    RegisterVisitorOutput registerVisitor(@RequestBody RegisterVisitorInput input);
 
 
     @RequestLine("GET /api/v1/system/register?startDate={startDate}&endDate={endDate}&firstName={firstName}&" +
             "lastName={lastName}&phoneNumber={phoneNumber}&idCardNumber={idCardNumber}&idCardValidity={idCardValidity}&" +
             "idCardIssueAuthority={idCardIssueAuthority}&idCardIssueDate={idCardIssueDate}&roomNumber={roomNumber}")
-    //@GetMapping(RestApiRoutes.SYSTEM_GET_VISITORS)
-    /*ResponseEntity<?>*/GetVisitorsOutput getVisitors(
+    GetVisitorsOutput getVisitors(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate,
             @Param("firstName") String firstName,
@@ -75,20 +66,15 @@ public interface HotelRestExport {
     );
 
     @RequestLine("POST /api/v1/system/room")
-    //@PostMapping(RestApiRoutes.SYSTEM_ADD_ROOM)
-    /*ResponseEntity<?>*/AddRoomOutput addRoom(@RequestBody AddRoomInput input);
+    AddRoomOutput addRoom(@RequestBody AddRoomInput input);
 
     @RequestLine("PUT /api/v1/system/room/{roomId}")
-    //@PutMapping(RestApiRoutes.SYSTEM_UPDATE_ROOM)
-    /*ResponseEntity<?>*/UpdateRoomOutput updateRoom(@Param("roomId") String roomId, @RequestBody UpdateRoomInput input);
+    UpdateRoomOutput updateRoom(@Param("roomId") String roomId, @RequestBody UpdateRoomInput input);
 
-    //@PatchMapping(value = RestApiRoutes.SYSTEM_PARTIAL_UPDATE_ROOM, consumes = {"application/json-patch+json", "application/json"})
     @RequestLine("PATCH /api/v1/system/room/{roomId}")
-    /*ResponseEntity<?>*/PartialUpdateRoomOutput partialUpdateRoom(@Param("roomId") String roomId, @RequestBody PartialUpdateRoomInput input);
-
+    PartialUpdateRoomOutput partialUpdateRoom(@Param("roomId") String roomId, @RequestBody PartialUpdateRoomInput input);
 
     @RequestLine("DELETE /api/v1/system/room/{roomId}")
-    //@DeleteMapping(RestApiRoutes.SYSTEM_DELETE_ROOM)
-    /*ResponseEntity<?>*/DeleteRoomOutput deleteRoom(@Param("roomId") String roomId);
+    DeleteRoomOutput deleteRoom(@Param("roomId") String roomId);
 
 }
