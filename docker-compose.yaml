@@ -11,6 +11,100 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
       - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - mynetwork
+
+  hotel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/hotel
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - spring.boot.admin.client.url=http://springbootadmin:8079
+      - spring.boot.admin.client.instance.management-url=http://hotel:8080/actuator
+      - spring.boot.admin.client.instance.service-url=http://hotel:8080/
+      - spring.boot.admin.client.instance.health-url=http://hotel:8080/actuator/health
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+  comments:
+    build:
+      context: ../comments
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/comments
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - spring.boot.admin.client.url=http://springbootadmin:8079
+      - spring.boot.admin.client.instance.management-url=http://comments:8081/actuator
+      - spring.boot.admin.client.instance.service-url=http://comments:8081/
+      - spring.boot.admin.client.instance.health-url=http://comments:8081/actuator/health
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+  authentication:
+    build:
+      context: ../authentication
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/authentication
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - spring.boot.admin.client.url=http://springbootadmin:8079
+      - spring.boot.admin.client.instance.management-url=http://authentication:8082/actuator
+      - spring.boot.admin.client.instance.service-url=http://authentication:8082/
+      - spring.boot.admin.client.instance.health-url=http://authentication:8082/actuator/health
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres
+    networks:
+      - mynetwork
+
+  bff:
+    build:
+      context: ../bff
+      dockerfile: Dockerfile
+    environment:
+      - hotel.url=http://hotel:8080
+      - comments.url=http://comments:8081
+      - authentication.url=http://authentication:8082
+      - spring.boot.admin.client.url=http://springbootadmin:8079
+      - spring.boot.admin.client.instance.management-url=http://bff:8083/actuator
+      - spring.boot.admin.client.instance.service-url=http://bff:8083/
+      - spring.boot.admin.client.instance.health-url=http://bff:8083/actuator/health
+    ports:
+      - "8083:8083"
+    depends_on:
+      - hotel
+      - comments
+      - authentication
+      - postgres
+    networks:
+      - mynetwork
+
+  springbootadmin:
+    build:
+      context: ../spring-boot-admin
+      dockerfile: Dockerfile
+    ports:
+      - "8079:8079"
+    networks:
+      - mynetwork
 
 volumes:
   db:
+
+networks:
+  mynetwork:
+    driver: bridge
