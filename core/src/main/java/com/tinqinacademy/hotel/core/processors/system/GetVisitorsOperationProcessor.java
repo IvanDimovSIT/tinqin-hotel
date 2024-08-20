@@ -41,6 +41,7 @@ public class GetVisitorsOperationProcessor extends BaseOperationProcessor implem
         }
     }
 
+
     private List<Tuple> findVisitors(GetVisitorsInput input) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
@@ -82,14 +83,15 @@ public class GetVisitorsOperationProcessor extends BaseOperationProcessor implem
                 .map(tuple -> {
                     Guest guest = tuple.get(0, Guest.class);
                     Booking booking = tuple.get(1, Booking.class);
-                    VisitorOutput visitorOutput = conversionService.convert(guest, VisitorOutput.class);
+                    VisitorOutput.VisitorOutputBuilder visitorOutput = conversionService
+                            .convert(guest, VisitorOutput.VisitorOutputBuilder.class);
                     if (visitorOutput != null) {
-                        visitorOutput.setRoomId(booking.getRoom().getId().toString());
-                        visitorOutput.setStartDate(booking.getStartDate());
-                        visitorOutput.setEndDate(booking.getEndDate());
+                        visitorOutput = visitorOutput.roomId(booking.getRoom().getId().toString())
+                                .startDate(booking.getStartDate())
+                                .endDate(booking.getEndDate());
                     }
 
-                    return visitorOutput;
+                    return visitorOutput.build();
                 })
                 .toList();
     }
