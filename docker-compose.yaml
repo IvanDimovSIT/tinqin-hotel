@@ -14,6 +14,20 @@ services:
     networks:
       - mynetwork
 
+  mongo:
+    image: mongo:6.0
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - mynetwork
+
+
   hotel:
     build:
       context: .
@@ -102,8 +116,22 @@ services:
     networks:
       - mynetwork
 
+  search:
+    build:
+      context: ../search
+      dockerfile: Dockerfile
+    environment:
+      - spring.data.mongodb.uri=mongodb://root:example@mongo:27017/searchdb?authSource=admin
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mongo
+    networks:
+      - mynetwork
+
 volumes:
   db:
+  mongo-data:
 
 networks:
   mynetwork:
