@@ -93,10 +93,12 @@ services:
       - hotel.url=http://hotel:8080
       - comments.url=http://comments:8081
       - authentication.url=http://authentication:8082
+      - search.url=http://search:8084
       - spring.boot.admin.client.url=http://springbootadmin:8079
       - spring.boot.admin.client.instance.management-url=http://bff:8083/actuator
       - spring.boot.admin.client.instance.service-url=http://bff:8083/
       - spring.boot.admin.client.instance.health-url=http://bff:8083/actuator/health
+      - spring.kafka.bootstrap-servers=kafka:9092
     ports:
       - "8083:8083"
     depends_on:
@@ -104,6 +106,8 @@ services:
       - comments
       - authentication
       - postgres
+      - search
+      - kafka
     networks:
       - mynetwork
 
@@ -122,10 +126,41 @@ services:
       dockerfile: Dockerfile
     environment:
       - spring.data.mongodb.uri=mongodb://root:example@mongo:27017/searchdb?authSource=admin
+      - kafka.server=kafka:9092
+      - spring.kafka.bootstrap-servers=kafka:9092
     ports:
       - "8084:8084"
     depends_on:
       - mongo
+      - kafka
+    networks:
+      - mynetwork
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - mynetwork
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:9092,OUTSIDE://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9092,OUTSIDE://0.0.0.0:9093
+      KAFKA_LISTENER_NAME: INSIDE
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
     networks:
       - mynetwork
 
